@@ -99,6 +99,8 @@ export default function Weather() {
     gl.domElement.dataset.fog=weatherState.fog.toFixed(3);
     gl.domElement.dataset.snowFlakes=String(flakes);
     gl.domElement.dataset.ambienceReady=String(ambienceStatus.ready);
+    gl.domElement.dataset.musicTrack=ambienceStatus.key;
+    gl.domElement.dataset.musicTitle=ambienceStatus.title;
     gl.domElement.dataset.ambienceLevels=JSON.stringify(ambienceStatus.levels);
   },-1);
   return <><lineSegments ref={rain} geometry={geometry} frustumCulled={false} name="rain-curtain">

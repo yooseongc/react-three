@@ -10,6 +10,7 @@ import { loadSettings, cleanSettings, SETTINGS_KEY } from '../game/settings';
 import { placementError } from '../game/placement';
 import { playerView } from '../game/navigation';
 import { activeMap, terrainKey } from '../game/mapConfig';
+import { resolveTouchMode } from '../game/inputMode';
 
 export const HISTORY_LIMIT = 100;
 
@@ -34,7 +35,7 @@ if (landscape && !slotId) {
     }
   } catch { initial.canSave = false; initial.notice = '저장소에 접근하지 못했습니다. 이번 탐험은 저장되지 않습니다.'; }
 }
-if (slotId) initial = slotData ? { cubes: slotData.cubes, canSave: true, notice: '가져온 월드의 별도 복사본입니다.' }
+if (slotId) initial = slotData ? { cubes: slotData.cubes, canSave: true, notice: '' }
   : { cubes: [], canSave: false, notice: slotError + ' 월드 메뉴에서 다른 월드를 선택하세요.' };
 let settings;
 try { settings = loadSettings(localStorage); } catch { settings = cleanSettings(null); }
@@ -56,9 +57,13 @@ export const useStore = create((set, get) => ({
   toggleFlight: () => set(state => ({ flying: !state.flying })),
   toggleSound: () => get().updateSettings({ soundEnabled: !get().soundEnabled }),
   changePage: () => set(state => ({ palettePage: (state.palettePage+1)%Math.ceil(BLOCK_TYPES.length/6) })),
+  buildMode: false,
+  toggleBuildMode: () => set(state => ({ buildMode: !state.buildMode, historyNotice: '' })),
   playing: false,
-  touchMode: window.matchMedia?.('(pointer: coarse)').matches || false,
-  setTouchMode: touchMode => { if(document.pointerLockElement)document.exitPointerLock();set({touchMode,playing:false}); },
+  touchMode: resolveTouchMode(settings.inputMode),
+  syncInputMode: () => {const touchMode=resolveTouchMode(get().inputMode);if(touchMode===get().touchMode)return;if(document.pointerLockElement)document.exitPointerLock();set({touchMode,playing:false});},
+  setInputMode: inputMode => {get().updateSettings({inputMode});get().syncInputMode();},
+  setTouchMode: touchMode => get().setInputMode(touchMode?'touch':'keyboard'),
   ready: false,
   dirty: false,
   undoStack: [],

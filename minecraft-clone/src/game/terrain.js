@@ -1,4 +1,5 @@
 import { mapConfig, mapLimit } from './mapConfig.js';
+import { addLandmarks } from './landmarks.js';
 export const TERRAIN_VERSION = 1;
 export const WATER_LEVEL = 2.8;
 export function hashSeed(text) {
@@ -29,12 +30,23 @@ export function generateTerrain(seed = 'willow', options = {}) {
     if(kind==='meadow')height=Math.round(4.5+Math.sin(x/24+phase)*Math.sin(z/27));
     if(kind==='islands')height=Math.max(1,Math.round(1+5*Math.max(0,Math.sin(x/12+phase)*Math.cos(z/14))));
     if(kind==='snow')height=Math.round(6+3*Math.sin(x/21+phase)*Math.sin(z/23)+2*Math.cos((x+z)/30));
+    // Generator 2 is opt-in: old worlds keep their exact terrain and edit baseline.
+    let rocky=false;
+    if(config.generator===2) {
+      const river=Math.abs(x-(-14+8*Math.sin(z/15+phase)));
+      const pond=Math.hypot((x-20)/1.3,z+22);
+      const ridge=Math.hypot((x+30)/1.1,z-25);
+      if(ridge<11){height=Math.max(height,Math.round(5+(11-ridge)*.65));rocky=ridge<7;}
+      if(river<5)height=Math.min(height,Math.max(1,Math.round(river-1)));
+      if(pond<10)height=Math.min(height,Math.max(1,Math.round((pond-4)/1.5)));
+    }
     // A broad clearing and two level trails connect the starting point to the biomes.
     const path = Math.min(Math.abs(x),Math.abs(z-10));
-    if(kind!=='islands' && path<5 && x<28) height = Math.round(height+(5-height)*Math.max(0,1-path/5));
+    if(kind!=='islands' && path<5 && x<28 && (config.generator===1 || height>=4)) height = Math.round(height+(5-height)*Math.max(0,1-path/5));
+    if(config.generator===2&&Math.hypot(x,z-10)<5)height=5;
     if(kind==='islands' && Math.hypot(x,z-10)<7)height=Math.max(height,Math.round(5-Math.hypot(x,z-10)/3));
     heights.set(`${x},${z}`,height);
-    for(let y=1;y<=height;y++) add(x,y,z,y===height?(kind==='snow'?'snow':height<=3?'sand':'grass'):y<height-2?'stone':'dirt');
+    for(let y=1;y<=height;y++) add(x,y,z,y===height?(rocky?'stone':kind==='snow'?'snow':height<=3?'sand':'grass'):y<height-2?'stone':'dirt');
     if(height+.5<WATER_LEVEL) water.push([x,WATER_LEVEL,z]);
     if(kind!=='snow' && height>=4 && path>3 && randomAt(salt,x,z)>.975) flowers.push([x,height+.75,z]);
   }
@@ -49,7 +61,8 @@ export function generateTerrain(seed = 'willow', options = {}) {
       add(x+dx,h+trunk+dy,z+dz,'leaves');
     }
   }
-  return {seed:String(seed),...config,cubes,heights,water,flowers};
+  const terrain={seed:String(seed),...config,cubes,heights,water,flowers};
+  return config.generator===2 ? addLandmarks(terrain,salt) : terrain;
 }
 
 // Saves contain only edits relative to this version of the deterministic generator.
@@ -61,9 +74,9 @@ export function serializeTerrain(seed, base, current, options={}) {
 }
 export function restoreTerrain(raw, seed, cubes, validPosition, types, options={}) {
   const data=JSON.parse(raw);
-  if(data.version!==2||data.generator!==TERRAIN_VERSION||data.seed!==seed||!Array.isArray(data.edits))throw Error('Unsupported landscape save');
+  if(data.version!==2||![1,2].includes(data.generator)||data.seed!==seed||!Array.isArray(data.edits))throw Error('Unsupported landscape save');
   const config=mapConfig(options),saved=mapConfig(data);
-  if((data.mapType!==undefined && data.mapType!==saved.mapType)||(data.size!==undefined && data.size!==saved.size)||config.mapType!==saved.mapType||config.size!==saved.size)throw Error('Landscape configuration mismatch');
+  if((data.mapType!==undefined && data.mapType!==saved.mapType)||(data.size!==undefined && data.size!==saved.size)||config.mapType!==saved.mapType||config.size!==saved.size||config.generator!==saved.generator)throw Error('Landscape configuration mismatch');
   const blocks=new Map(cubes.map(c=>[c.key,c]));
   for(const edit of data.edits){
     if(!edit||!validPosition(edit.pos)||(edit.texture!==null&&!types.includes(edit.texture)))throw Error('Invalid landscape edit');

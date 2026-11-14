@@ -51,7 +51,7 @@ export default function Player() {
     const click = event => {
       const isTouch=event.type==='voxel-action';
       const state = useStore.getState();
-      if (!state.playing || (isTouch ? !state.touchMode : document.pointerLockElement !== gl.domElement)) return;
+      if (!state.playing || !state.buildMode || (isTouch ? !state.touchMode : document.pointerLockElement !== gl.domElement)) return;
       const button=isTouch?event.detail:event.button;
       if (![0,1,2].includes(button)) return;
       event.preventDefault();
@@ -107,7 +107,7 @@ export default function Player() {
     Object.assign(playerView, { x: p.x, y: p.y, z: p.z, heading: heading.current });
     camera.position.set(p.x, p.y + 1.62, p.z);
     camera.updateMatrixWorld();
-    const hit = state.playing ? target() : null;
+    const hit = state.playing && state.buildMode ? target() : null;
     const block = hit?.block;
     const placement = placementPosition(hit);
     const error = placementError(state.world, placement, p);
@@ -143,7 +143,8 @@ export default function Player() {
     gl.domElement.dataset.direction = [forward.x, forward.y, forward.z].join(',');
     gl.domElement.dataset.target = block ? block.join(',') : hit?.ground ? 'ground' : '';
     gl.domElement.dataset.placement = placement?.join(',') || '';
-    gl.domElement.dataset.placementError = state.playing ? error : '';
+    gl.domElement.dataset.buildMode = String(state.buildMode);
+    gl.domElement.dataset.placementError = state.playing && state.buildMode ? error : '';
     gl.domElement.dataset.selectedMaterial = state.texture;
     gl.domElement.dataset.targetNormal = hit?.normal?.join(',') || (hit?.ground ? '0,1,0' : '');
     renderMetrics.drawCalls = gl.info.render.calls;

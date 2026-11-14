@@ -1,10 +1,10 @@
 import { nearbyBlocks } from './voxels';
 import { MAP_LIMIT } from './mapConfig';
 
-export const BLOCK_TYPES = ['dirt', 'grass', 'glass', 'wood', 'log', 'sand', 'stone', 'leaves', 'brick', 'plaster', 'roof', 'slate', 'snow'];
+export const BLOCK_TYPES = ['dirt', 'grass', 'glass', 'wood', 'log', 'sand', 'stone', 'leaves', 'brick', 'plaster', 'roof', 'slate', 'snow', 'lantern'];
 export const ALL_BLOCK_TYPES = BLOCK_TYPES;
-export const BLOCK_LABELS = ['흙', '잔디', '유리', '목재', '원목', '모래', '돌', '잎', '벽돌', '회벽', '기와', '판석', '눈'];
-export const BLOCK_COLORS = ['#ba8a60', '#a0bd65', '#b3e4e9', '#e0bf84', '#947252', '#d8c591', '#848f91', '#5e8b4c', '#b36b52', '#e7dfc8', '#697e86', '#9eaaa6', '#e5eff1'];
+export const BLOCK_LABELS = ['흙', '잔디', '유리', '목재', '원목', '모래', '돌', '잎', '벽돌', '회벽', '기와', '판석', '눈', '등불'];
+export const BLOCK_COLORS = ['#ba8a60', '#a0bd65', '#b3e4e9', '#e0bf84', '#947252', '#d8c591', '#848f91', '#5e8b4c', '#b36b52', '#e7dfc8', '#697e86', '#9eaaa6', '#e5eff1', '#ffd28b'];
 export const WORLD_LIMIT = MAP_LIMIT;
 export const FLOOR = 0.5;
 export const PLAYER_RADIUS = 0.3;

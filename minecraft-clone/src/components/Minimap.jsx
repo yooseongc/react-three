@@ -36,13 +36,13 @@ export default function Minimap() {
     const top=new Map();
     for(const cube of cubes){const key=cube.pos[0]+','+cube.pos[2];if(!top.has(key)||top.get(key).pos[1]<cube.pos[1])top.set(key,cube);}
     [...top.values()].forEach(({ pos, texture }) => {
-      map.fillStyle = colors[texture];
+      map.fillStyle = texture==='lantern'?'#ffd28b':colors[texture];
       map.fillRect(project(pos[0] - 0.5), project(pos[2] - 0.5), SCALE, SCALE);
     });
     if (landscape) {
-      const occupied = new Set(cubes.filter(c => c.pos[1] === 3).map(c => `${c.pos[0]},${c.pos[2]}`));
       map.fillStyle = '#70b9c4';
-      landscape.water.forEach(([x,,z]) => { if (!occupied.has(`${x},${z}`)) map.fillRect(project(x-.5),project(z-.5),SCALE,SCALE); });
+      landscape.water.forEach(([x,y,z]) => { if ((top.get(`${x},${z}`)?.pos[1]||0)+.5<y) map.fillRect(project(x-.5),project(z-.5),SCALE,SCALE); });
+      for(const site of landscape.sites||[]){map.fillStyle='#fff0ba';map.fillRect(project(site.x)-2,project(site.z)-2,4,4);}
     }
     const draw = () => {
       const { x, y, z, heading } = playerView;

@@ -1,7 +1,8 @@
 export const SETTINGS_KEY = 'voxel-garden.settings.v1';
-export const defaultSettings = { soundEnabled: true, sensitivity: 1, shadows: true, showMinimap: true, dayCycle: true, timeOfDay: 9, landscapeMotion: true, weatherMode: 'auto', ambienceEnabled: true, ambienceVolume: .45, showWildlife: true };
+export const defaultSettings = { soundEnabled: true, sensitivity: 1, shadows: true, showMinimap: true, dayCycle: true, timeOfDay: 9, landscapeMotion: true, weatherMode: 'auto', ambienceEnabled: true, ambienceVolume: .45, showWildlife: true, inputMode:'auto' };
 export function cleanSettings(value) {
   return { soundEnabled: typeof value?.soundEnabled === 'boolean' ? value.soundEnabled : true,
+    inputMode:['auto','touch','keyboard'].includes(value?.inputMode)?value.inputMode:'auto',
     sensitivity: Number.isFinite(value?.sensitivity) ? Math.min(2,Math.max(.25,value.sensitivity)) : 1,
     shadows: typeof value?.shadows === 'boolean' ? value.shadows : true,
     showMinimap: typeof value?.showMinimap === 'boolean' ? value.showMinimap : true,

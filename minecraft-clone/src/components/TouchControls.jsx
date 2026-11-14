@@ -53,13 +53,14 @@ export default function TouchControls() {
       onPointerMove={moveStick} onPointerUp={releaseStick} onPointerCancel={releaseStick} onLostPointerCapture={releaseStick}><span ref={knob}>이동</span></div>
     <div className="touch-toolbar">
       <TouchButton onClick={()=>{state.setPlaying(false);if(state.dirty)state.saveWorld();}}>메뉴</TouchButton>
-      <TouchButton aria-label="실행 취소" disabled={!state.undoStack.length} onClick={()=>state.undoEdit()}>취소</TouchButton>
-      <TouchButton aria-label="다시 실행" disabled={!state.redoStack.length} onClick={()=>state.redoEdit()}>재실행</TouchButton>
+      <TouchButton aria-label="건축 모드" aria-pressed={state.buildMode} onClick={state.toggleBuildMode}>건축</TouchButton>
+      {state.buildMode && <TouchButton aria-label="실행 취소" disabled={!state.undoStack.length} onClick={()=>state.undoEdit()}>취소</TouchButton>}
+      {state.buildMode && <TouchButton aria-label="다시 실행" disabled={!state.redoStack.length} onClick={()=>state.redoEdit()}>재실행</TouchButton>}
       <TouchButton aria-pressed={state.flying} onClick={state.toggleFlight}>비행</TouchButton>
     </div>
     <div className="touch-actions">
-      <TouchButton onClick={()=>action(1)}>집기</TouchButton><HoldButton name="ascend">{state.flying?'상승':'점프'}</HoldButton>
-      <TouchButton className="touch-destroy" onClick={()=>action(0)}>파괴</TouchButton><TouchButton onClick={()=>action(2)}>설치</TouchButton>
+      {state.buildMode && <TouchButton onClick={()=>action(1)}>집기</TouchButton>}<HoldButton name="ascend">{state.flying?'상승':'점프'}</HoldButton>
+      {state.buildMode && <TouchButton className="touch-destroy" onClick={()=>action(0)}>파괴</TouchButton>}{state.buildMode && <TouchButton onClick={()=>action(2)}>설치</TouchButton>}
       {state.flying && <HoldButton name="descend">하강</HoldButton>}
     </div>
   </div>;

@@ -12,6 +12,9 @@ import { useStore } from './hooks/useStore';
 import Decorations from './components/Decorations';
 import Water from './components/Water';
 import BlockParticles from './components/BlockParticles';
+import LanternLights from './components/LanternLights';
+import DiscoveryHint from './components/DiscoveryHint';
+import NowPlaying from './components/NowPlaying';
 
 
 class SceneErrorBoundary extends React.Component {
@@ -31,6 +34,12 @@ export default function App() {
   const cubes = useStore(state => state.cubes);
   const shadows = useStore(state => state.shadows);
   const touchMode = useStore(state => state.touchMode);
+  useEffect(()=>{
+    const queries=['(pointer: coarse)','(pointer: fine)'].map(q=>window.matchMedia?.(q)).filter(Boolean);
+    const sync=()=>useStore.getState().syncInputMode();
+    queries.forEach(q=>q.addEventListener?.('change',sync));sync();
+    return()=>queries.forEach(q=>q.removeEventListener?.('change',sync));
+  },[]);
   useEffect(() => {
     if (!useStore.getState().dirty) return;
     const timer = setTimeout(() => useStore.getState().saveWorld(), 500);
@@ -64,6 +73,7 @@ export default function App() {
       <DayNight />
       <Ground />
       <Cubes />
+      <LanternLights />
       <Decorations />
       <Wildlife />
       <Water />
@@ -71,5 +81,7 @@ export default function App() {
       <Player />
     </Canvas>
     <Hud />
+    <DiscoveryHint />
+    <NowPlaying />
   </SceneErrorBoundary>;
 }

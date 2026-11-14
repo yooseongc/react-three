@@ -1,0 +1,326 @@
+[
+  {
+    "time": "day",
+    "weather": "clear",
+    "title": "Countryside",
+    "artist": "TAD",
+    "license": "CC0-1.0",
+    "source": "https://opengameart.org/content/lofi-compilation",
+    "localPath": "/assets/audio/day_clear.ogg",
+    "licenses": [
+      "http://creativecommons.org/publicdomain/zero/1.0/"
+    ],
+    "download": "https://opengameart.org/sites/default/files/Countryside_0.mp3",
+    "sourceSha256": "db4ecc6a540b08cfb8cc95c0703ee8616801db9d588f33686f9743f50955e442",
+    "duration": 92.19,
+    "bytes": 847025
+  },
+  {
+    "time": "day",
+    "weather": "cloudy",
+    "title": "Calm Loop",
+    "artist": "wipics",
+    "license": "CC0-1.0",
+    "source": "https://opengameart.org/content/calm-loop",
+    "localPath": "/assets/audio/day_cloudy.ogg",
+    "licenses": [
+      "http://creativecommons.org/publicdomain/zero/1.0/"
+    ],
+    "download": "https://opengameart.org/sites/default/files/Relaxing_0.mp3",
+    "sourceSha256": "1d7e386c079d4add6b3b1592054846e4977035f26844466e409467c6dc7bdbde",
+    "duration": 19.38,
+    "bytes": 228503
+  },
+  {
+    "time": "day",
+    "weather": "fog",
+    "title": "Exploration Theme",
+    "artist": "CleytonKauffman",
+    "license": "CC0-1.0",
+    "source": "https://opengameart.org/content/exploration-theme",
+    "localPath": "/assets/audio/day_fog.ogg",
+    "licenses": [
+      "http://creativecommons.org/publicdomain/zero/1.0/"
+    ],
+    "download": "https://opengameart.org/sites/default/files/exploration_theme.zip",
+    "sourceSha256": "81601fb33319491973803edeebb5ab5d2d05d943c0accb48ea79e84a9680fa43",
+    "archiveMember": "Exploration Theme.ogg",
+    "duration": 134.4,
+    "bytes": 1313075
+  },
+  {
+    "time": "day",
+    "weather": "rain",
+    "title": "Rain Drops",
+    "artist": "SpringySpringo",
+    "license": "CC0-1.0",
+    "source": "https://opengameart.org/content/rain-drops",
+    "localPath": "/assets/audio/day_rain.ogg",
+    "licenses": [
+      "http://creativecommons.org/licenses/by/3.0/",
+      "http://creativecommons.org/publicdomain/zero/1.0/"
+    ],
+    "download": "https://opengameart.org/sites/default/files/rain_drops_2.mp3",
+    "sourceSha256": "44f3439ba189b1e2a99ccc5f977aff0258e8ff45776653cdd714434c57622b07",
+    "duration": 177.61,
+    "bytes": 1824445
+  },
+  {
+    "time": "day",
+    "weather": "snow",
+    "title": "Ice Village",
+    "artist": "KarateStudios",
+    "license": "CC0-1.0",
+    "source": "https://opengameart.org/content/ice-village",
+    "localPath": "/assets/audio/day_snow.ogg",
+    "licenses": [
+      "http://creativecommons.org/publicdomain/zero/1.0/"
+    ],
+    "download": "https://opengameart.org/sites/default/files/Ice%20Village.wav.flac",
+    "sourceSha256": "a6447abfc4dc19559a314eb5bff88832bcb56c1d8020cc0ae2997b41f502ea4f",
+    "duration": 142.5,
+    "bytes": 1443271
+  },
+  {
+    "time": "morning",
+    "weather": "clear",
+    "title": "First Light Particles",
+    "artist": "Yoiyami",
+    "license": "CC0-1.0",
+    "source": "https://opengameart.org/node/182244",
+    "localPath": "/assets/audio/morning_clear.ogg",
+    "licenses": [
+      "http://creativecommons.org/publicdomain/zero/1.0/"
+    ],
+    "download": "https://opengameart.org/sites/default/files/first_light_particles_0.wav",
+    "sourceSha256": "f0538a1a67450cc1d5e305fad5bc0d5d422ad809f720d695ab356e55fbe40fc5",
+    "duration": 131.72,
+    "bytes": 1329288
+  },
+  {
+    "time": "morning",
+    "weather": "cloudy",
+    "title": "Contemplation",
+    "artist": "Joth",
+    "license": "CC0-1.0",
+    "source": "https://opengameart.org/content/contemplation-0",
+    "localPath": "/assets/audio/morning_cloudy.ogg",
+    "licenses": [
+      "http://creativecommons.org/publicdomain/zero/1.0/"
+    ],
+    "download": "https://opengameart.org/sites/default/files/Contemplation.mp3",
+    "sourceSha256": "283962d3a975c93613c46cda30c9f0816176ae3e2899f961591a49e2d41b4bf3",
+    "duration": 120.06,
+    "bytes": 924930
+  },
+  {
+    "time": "morning",
+    "weather": "fog",
+    "title": "Heavenly Loop",
+    "artist": "isaiah658",
+    "license": "CC0-1.0",
+    "source": "https://opengameart.org/content/heavenly-loop",
+    "localPath": "/assets/audio/morning_fog.ogg",
+    "licenses": [
+      "http://creativecommons.org/publicdomain/zero/1.0/"
+    ],
+    "download": "https://opengameart.org/sites/default/files/Heavenly%20Loop_0.ogg",
+    "sourceSha256": "a842e9e054019132cacc8fd352e7b31c000ebb51e0b227a2511e1bccb4eb166e",
+    "duration": 33.65,
+    "bytes": 278670
+  },
+  {
+    "time": "morning",
+    "weather": "rain",
+    "title": "Morning rain",
+    "artist": "TAD",
+    "license": "CC0-1.0",
+    "source": "https://opengameart.org/content/lofi-compilation",
+    "localPath": "/assets/audio/morning_rain.ogg",
+    "licenses": [
+      "http://creativecommons.org/publicdomain/zero/1.0/"
+    ],
+    "download": "https://opengameart.org/sites/default/files/Morning%20rain_0.mp3",
+    "sourceSha256": "11c9c43be5d3baf5892cd59034ba3c1b690db9a4b986070530597d0afaa12306",
+    "duration": 64.05,
+    "bytes": 690163
+  },
+  {
+    "time": "morning",
+    "weather": "snow",
+    "title": "Through the Snow",
+    "artist": "CleytonKauffman",
+    "license": "CC0-1.0",
+    "source": "https://opengameart.org/content/snow-theme",
+    "localPath": "/assets/audio/morning_snow.ogg",
+    "licenses": [
+      "http://creativecommons.org/publicdomain/zero/1.0/"
+    ],
+    "download": "https://opengameart.org/sites/default/files/snow_theme_1.zip",
+    "sourceSha256": "10fe7758311e7b7e724abbad56fbee0d86e0131e1fa66512f4188a5ee6a0c05c",
+    "archiveMember": "BGM_Snow_Theme_Loop.ogg",
+    "duration": 24.94,
+    "bytes": 286028
+  },
+  {
+    "time": "night",
+    "weather": "clear",
+    "title": "Starfield Romance",
+    "artist": "Yoiyami",
+    "license": "CC0-1.0",
+    "source": "https://opengameart.org/content/starfield-romance-%E2%80%93-cc0-ambient-emotional-space-theme-yoiyami-blue-series-%E2%80%93-no3",
+    "localPath": "/assets/audio/night_clear.ogg",
+    "licenses": [
+      "http://creativecommons.org/publicdomain/zero/1.0/"
+    ],
+    "download": "https://opengameart.org/sites/default/files/starfield_romance1.wav",
+    "sourceSha256": "b463180c7115dac8087e90207b8981f8825a474cf85d33dc52da984d6536711f",
+    "duration": 218.96,
+    "bytes": 2346304
+  },
+  {
+    "time": "night",
+    "weather": "cloudy",
+    "title": "Yoiyami Core Theme",
+    "artist": "Yoiyami",
+    "license": "CC0-1.0",
+    "source": "https://opengameart.org/content/yoiyami-core-theme-%E2%80%93-deep-blue-ambient-piano",
+    "localPath": "/assets/audio/night_cloudy.ogg",
+    "licenses": [
+      "http://creativecommons.org/publicdomain/zero/1.0/"
+    ],
+    "download": "https://opengameart.org/sites/default/files/yoiyami_core_theme_0.wav",
+    "sourceSha256": "613d462f5229568ad98dcbe870036ccdf858f5ae33c63386cace86548809cb60",
+    "duration": 234.96,
+    "bytes": 2567420
+  },
+  {
+    "time": "night",
+    "weather": "fog",
+    "title": "Safe Space",
+    "artist": "Tsorthan Grove",
+    "license": "CC0-1.0",
+    "source": "https://opengameart.org/content/safe-space-0",
+    "localPath": "/assets/audio/night_fog.ogg",
+    "licenses": [
+      "http://creativecommons.org/publicdomain/zero/1.0/"
+    ],
+    "download": "https://opengameart.org/sites/default/files/safe_space_loop.flac",
+    "sourceSha256": "159a2bb84cfdbdbd6a519699d7a76bb1d4305a1afcaccf941fbea5d09b063e66",
+    "duration": 148.31,
+    "bytes": 999932
+  },
+  {
+    "time": "night",
+    "weather": "rain",
+    "title": "Dark Rainy Night",
+    "artist": "kindland",
+    "license": "CC0-1.0",
+    "source": "https://opengameart.org/content/rain-and-thunders",
+    "localPath": "/assets/audio/night_rain.ogg",
+    "licenses": [
+      "http://creativecommons.org/publicdomain/zero/1.0/"
+    ],
+    "download": "https://opengameart.org/sites/default/files/Dark_Rainy_Night%28ambience%29.ogg",
+    "sourceSha256": "115c233f9f8bc793f12723030aaae6cfda923e565c32a8e54bb274b2a8199ee1",
+    "duration": 278.77,
+    "bytes": 3243736
+  },
+  {
+    "time": "night",
+    "weather": "snow",
+    "title": "Iridescent Deep",
+    "artist": "Tsorthan Grove",
+    "license": "CC0-1.0",
+    "source": "https://opengameart.org/content/iridescent-deep",
+    "localPath": "/assets/audio/night_snow.ogg",
+    "licenses": [
+      "http://creativecommons.org/publicdomain/zero/1.0/"
+    ],
+    "download": "https://opengameart.org/sites/default/files/iridescent_deep_ogg.7z",
+    "sourceSha256": "71728225ef26ab0ce2136f0e9268803d41f92fde6fdd219ea9da919f322a4645",
+    "archiveMember": "Iridescent Deep - Loop (Alternate).ogg",
+    "duration": 153.6,
+    "bytes": 1228512
+  },
+  {
+    "time": "sunset",
+    "weather": "clear",
+    "title": "Sunset Plains",
+    "artist": "Yoiyami",
+    "license": "CC0-1.0",
+    "source": "https://opengameart.org/content/sunset-plains",
+    "localPath": "/assets/audio/sunset_clear.ogg",
+    "licenses": [
+      "http://creativecommons.org/publicdomain/zero/1.0/"
+    ],
+    "download": "https://opengameart.org/sites/default/files/sunset_plains.wav",
+    "sourceSha256": "f3750f8eda8bf42662b12f5726404675689b50f05ccaa968c5cb2e33d9172a62",
+    "duration": 329.68,
+    "bytes": 3441714
+  },
+  {
+    "time": "sunset",
+    "weather": "cloudy",
+    "title": "Sunset Walk",
+    "artist": "KiluaBoy",
+    "license": "CC0-1.0",
+    "source": "https://opengameart.org/content/sunset-walk-ambient-quiet-sweet-loop",
+    "localPath": "/assets/audio/sunset_cloudy.ogg",
+    "licenses": [
+      "http://creativecommons.org/publicdomain/zero/1.0/"
+    ],
+    "download": "https://opengameart.org/sites/default/files/SunsetWalk.ogg",
+    "sourceSha256": "1d230721e6200276065b913e44943d0e0503af88fc2dd793be1249738e06d98c",
+    "duration": 76.8,
+    "bytes": 660302
+  },
+  {
+    "time": "sunset",
+    "weather": "fog",
+    "title": "Whispers in the Fog",
+    "artist": "Ruhinre",
+    "license": "CC0-1.0",
+    "source": "https://opengameart.org/content/whispers-in-the-fog",
+    "localPath": "/assets/audio/sunset_fog.ogg",
+    "licenses": [
+      "http://creativecommons.org/publicdomain/zero/1.0/"
+    ],
+    "download": "https://opengameart.org/sites/default/files/whispers_in_the_fog.ogg",
+    "sourceSha256": "3900af8578b0a771f2362118c7885a5078ea2c65170cbd0c5cad64b3162ffffd",
+    "duration": 15.36,
+    "bytes": 128435
+  },
+  {
+    "time": "sunset",
+    "weather": "rain",
+    "title": "I Want to go Home",
+    "artist": "Eldritch Grim",
+    "license": "CC0-1.0",
+    "source": "https://opengameart.org/content/i-want-to-go-home",
+    "localPath": "/assets/audio/sunset_rain.ogg",
+    "licenses": [
+      "http://creativecommons.org/publicdomain/zero/1.0/"
+    ],
+    "download": "https://opengameart.org/sites/default/files/i_want_to_go_home.wav",
+    "sourceSha256": "393d7a18afcd24123c027ec9df56c99b8c0e4e5c8022e510d4588ec5a70725d3",
+    "duration": 194.0,
+    "bytes": 1777681
+  },
+  {
+    "time": "sunset",
+    "weather": "snow",
+    "title": "November Snow",
+    "artist": "cynicmusic",
+    "license": "CC0-1.0",
+    "source": "https://opengameart.org/content/november-snow",
+    "localPath": "/assets/audio/sunset_snow.ogg",
+    "licenses": [
+      "http://creativecommons.org/publicdomain/zero/1.0/"
+    ],
+    "download": "https://opengameart.org/sites/default/files/155%20November_snow-33_tape_leveled.mp3",
+    "sourceSha256": "7e4675f6fbc86b97603d620dc54b0753eb5fe773ccc2fab99bc863cb7afde32c",
+    "duration": 349.51,
+    "bytes": 4129694
+  }
+]

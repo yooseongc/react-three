@@ -37,6 +37,7 @@ export const plaster = naturalTexture([231, 223, 200]);
 export const roof = naturalTexture([105, 126, 134], 'roof');
 export const slate = naturalTexture([158, 170, 166], 'slate');
 export const snow = naturalTexture([229,239,241]);
+export const lantern = naturalTexture([255,207,130], 'slate');
 
 // Keep ground repetition separate from grass block UVs.
 export const ground = new TextureLoader().load(grassImg);

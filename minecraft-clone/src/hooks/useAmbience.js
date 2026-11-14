@@ -1,8 +1,7 @@
 import { useEffect } from 'react';
 import { useStore } from './useStore';
 import { ensureAmbience, setAmbience } from '../game/ambience';
-import { ambienceMix } from '../game/ambienceMix';
-import { sampleDay, worldClock } from '../game/daylight';
+import { worldClock } from '../game/daylight';
 import { weatherState } from '../game/weather';
 
 export function useAmbience() {
@@ -16,7 +15,7 @@ export function useAmbience() {
       const state=useStore.getState();
       const audible=state.playing && state.ambienceEnabled && !document.hidden;
       if(audible)ensureAmbience();
-      setAmbience(ambienceMix(weatherState,sampleDay(worldClock.hour).daylight,weatherState.sheltered),state.ambienceVolume,audible);
+      setAmbience({hour:worldClock.hour,weather:weatherState.current,sheltered:weatherState.sheltered},state.ambienceVolume,audible);
     },100);
     return ()=>{
       clearInterval(timer);unsubscribe();window.removeEventListener('blur',silence);

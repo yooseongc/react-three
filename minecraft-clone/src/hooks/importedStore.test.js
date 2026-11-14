@@ -28,3 +28,16 @@ test('large imported copies restore their boundary and retain edge edits',async(
  expect(saved.size).toBe(200);expect(saved.mapType).toBe('islands');
  expect(saved.cubes.some(c=>c.key==='99,30,-99')).toBe(true);
 });
+
+test('new scenery copy preserves its generator and lamp removal across reload',async()=>{
+ const {generateTerrain}=await import('../game/terrain');
+ const config={mapType:'forest',size:100,generator:2},terrain=generateTerrain('willow',config);
+ const lamp=terrain.cubes.find(c=>c.texture==='lantern'),key=SLOT_PREFIX+'test-copy';
+ localStorage.setItem(key,JSON.stringify(exportWorld(terrain.cubes,'willow',config)));
+ vi.resetModules();let {useStore}=await import('./useStore');
+ useStore.getState().removeCube(...lamp.pos);expect(useStore.getState().saveWorld()).toBe(true);
+ const data=JSON.parse(localStorage.getItem(key));expect(data.generator).toBe(2);expect(data.edits).toEqual([{pos:lamp.pos,texture:null}]);
+ vi.resetModules();({useStore}=await import('./useStore'));
+ expect(useStore.getState().world.blocks.has(lamp.key)).toBe(false);
+ expect(useStore.getState().cubes.length).toBe(terrain.cubes.length-1);
+});

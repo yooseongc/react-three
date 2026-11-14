@@ -6,7 +6,7 @@ const rows=[];
 for(const mapType of Object.keys(MAP_TYPES))for(const size of MAP_SIZES){
   const times=[];let terrain;
   for(let i=0;i<3;i++){
-    const start=performance.now();terrain=generateTerrain('willow',{mapType,size});times.push(performance.now()-start);
+    const start=performance.now();terrain=generateTerrain('willow',{mapType,size,generator:2});times.push(performance.now()-start);
   }
   times.sort((a,b)=>a-b);
   rows.push({mapType,size,blocks:terrain.cubes.length,water:terrain.water.length,medianGenerationMs:+times[1].toFixed(1)});
