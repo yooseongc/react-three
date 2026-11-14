@@ -8,6 +8,8 @@ export default function Settings() {
     <label><input type="checkbox" checked={state.soundEnabled} onChange={e=>state.updateSettings({soundEnabled:e.target.checked})} /> 효과음</label>
     <label><input type="checkbox" checked={state.shadows} onChange={e=>state.updateSettings({shadows:e.target.checked})} /> 그림자</label>
     <label><input type="checkbox" checked={state.showMinimap} onChange={e=>state.updateSettings({showMinimap:e.target.checked})} /> 미니맵</label>
+    <label><input type="checkbox" checked={state.landscapeMotion} onChange={e=>state.updateSettings({landscapeMotion:e.target.checked})} /> 풍경 움직임 · 물결과 바람</label>
+    <p>물결·풀·잎·구름·안개가 움직입니다. 움직임이 불편하면 꺼보세요. 낮밤 순환과는 별도이며 메뉴에서는 멈춥니다.</p>
     <hr />
     <label><input type="checkbox" checked={state.dayCycle} onChange={e=>state.updateSettings({dayCycle:e.target.checked,timeOfDay:worldClock.hour})} /> 낮밤 자동 순환 · 하루 12분</label>
     <label>시간 고정 <output>{formatTime(state.timeOfDay)}</output>

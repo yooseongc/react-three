@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { Canvas } from '@react-three/fiber';
 import DayNight from './components/DayNight';
+import LandscapeMotion from './components/LandscapeMotion';
 import Ground from './components/Ground';
 import Player from './components/Player';
 import Cubes from './components/Cubes';
@@ -55,6 +56,7 @@ export default function App() {
         // Count both shadow and main passes, reset once at the next frame boundary.
         gl.info.autoReset = false;
       }}>
+      <LandscapeMotion />
       <DayNight />
       <Ground />
       <Cubes />

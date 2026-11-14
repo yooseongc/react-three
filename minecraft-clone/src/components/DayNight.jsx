@@ -3,12 +3,14 @@ import { useFrame } from '@react-three/fiber';
 import { BackSide, Color, Vector3 } from 'three';
 import { useStore } from '../hooks/useStore';
 import { advanceTime, sampleDay, worldClock } from '../game/daylight';
+import { cloudShader, maskCloudStars, motionUniforms } from '../game/motion';
 
 // A camera-centred sky keeps the horizon continuous across dawn and midnight.
 const vertexShader = `varying vec3 direction;
 void main(){ direction = position; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }`;
 const fragmentShader = `varying vec3 direction;
 uniform vec3 zenith; uniform vec3 horizon; uniform vec3 sun; uniform float daylight;
+${cloudShader}
 void main(){
   vec3 d = normalize(direction);
   vec3 color = mix(horizon, zenith, smoothstep(-.08,.65,d.y));
@@ -16,6 +18,8 @@ void main(){
   float moonDisc = smoothstep(.99965,.9998,dot(d,-normalize(sun)));
   color = mix(color,vec3(1.0,.85,.55),sunDisc);
   color = mix(color,vec3(.8,.88,1.0),moonDisc * (1.0-daylight));
+  vec3 cloudColor = mix(horizon * .7, mix(horizon,vec3(.92,.96,1.),.65),daylight);
+  color = mix(color,cloudColor,cloudCover(d));
   gl_FragColor=vec4(color,1.0);
   #include <tonemapping_fragment>
   #include <colorspace_fragment>
@@ -29,7 +33,7 @@ export default function DayNight() {
     nightFog: new Color('#34465f'), dayFog: new Color('#c4d8cb'), dusk: new Color('#eea16d'), noon: new Color('#fff4dc'),
     moon: new Color('#bbcdf5'), white: new Color('#ffffff') }), []);
   const uniforms = useMemo(() => ({ zenith: { value: new Color() }, horizon: { value: new Color() },
-    sun: { value: new Vector3() }, daylight: { value: 1 } }), []);
+    sun: { value: new Vector3() }, daylight: { value: 1 }, ...motionUniforms }), []);
   const starPositions = useMemo(() => {
     const positions = new Float32Array(600 * 3);
     let seed = 781;
@@ -47,12 +51,17 @@ export default function DayNight() {
     worldClock.hour = advanceTime(worldClock.hour, delta, state.dayCycle && state.playing && !document.hidden);
     const sample = sampleDay(worldClock.hour);
     const liveUniforms = sky.current.material.uniforms;
+    liveUniforms.m8Time.value = motionUniforms.m8Time.value;
+    liveUniforms.m8Strength.value = motionUniforms.m8Strength.value;
     liveUniforms.zenith.value.copy(colors.night).lerp(colors.day, sample.daylight);
     liveUniforms.horizon.value.copy(colors.nightFog).lerp(colors.dayFog, sample.daylight).lerp(colors.dusk, sample.twilight * .7);
     liveUniforms.sun.value.set(...sample.sun); liveUniforms.daylight.value = sample.daylight;
     sky.current.position.copy(camera.position); stars.current.position.copy(camera.position);
     stars.current.material.opacity = sample.stars * .85;
     scene.fog.color.copy(liveUniforms.horizon.value);
+    const mist = Math.sin(motionUniforms.m8Time.value * .05) * motionUniforms.m8Strength.value;
+    scene.fog.near = 45 + mist * 2;
+    scene.fog.far = 110 + mist * 3;
     ambient.current.intensity = sample.ambient;
     ambient.current.color.copy(colors.moon).lerp(colors.white, sample.daylight);
     light.current.intensity = 2.65 * Math.min(1, Math.max(0, sample.elevation / .3));
@@ -73,7 +82,7 @@ export default function DayNight() {
     </mesh>
     <points ref={stars} renderOrder={-9}>
       <bufferGeometry><bufferAttribute attach="attributes-position" args={[starPositions,3]} /></bufferGeometry>
-      <pointsMaterial color="#e5efff" size={1.6} sizeAttenuation={false} transparent depthWrite={false} fog={false} />
+      <pointsMaterial color="#e5efff" size={1.6} sizeAttenuation={false} transparent depthWrite={false} fog={false} onBeforeCompile={maskCloudStars} customProgramCacheKey={()=>'garden-cloud-stars-v1'} />
     </points>
     <ambientLight ref={ambient} />
     <directionalLight ref={moon} color="#b8cdf6" />

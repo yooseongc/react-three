@@ -1,11 +1,16 @@
 import { useMemo, useEffect } from 'react';
-import { BufferGeometry, Float32BufferAttribute } from 'three';
+import { useThree } from '@react-three/fiber';
+import { BufferGeometry, Float32BufferAttribute, MeshStandardMaterial } from 'three';
+import { animateSurface, MAX_WAVE_HEIGHT } from '../game/motion';
 import { landscape } from '../game/landscape';
 import { WATER_LEVEL } from '../game/terrain';
 import { useStore } from '../hooks/useStore';
 
 export default function Water() {
   const world = useStore(state => state.world);
+  const gl = useThree(state => state.gl);
+  const material = useMemo(() => animateSurface(new MeshStandardMaterial({color:'#318f9e',transparent:true,opacity:.72,roughness:.42,metalness:.05,depthWrite:false}), 'water'), []);
+  useEffect(()=>()=>material.dispose(),[material]);
   const geometry = useMemo(() => {
     if (!landscape) return null;
     const positions=[], normals=[], uvs=[], indices=[];
@@ -20,11 +25,10 @@ export default function Water() {
     }
     const g=new BufferGeometry();g.setAttribute('position',new Float32BufferAttribute(positions,3));
     g.setAttribute('normal',new Float32BufferAttribute(normals,3));g.setAttribute('uv',new Float32BufferAttribute(uvs,2));g.setIndex(indices);
-    g.computeBoundingSphere();return g;
+    g.computeBoundingSphere();g.boundingSphere.radius += MAX_WAVE_HEIGHT;return g;
   },[world]);
   useEffect(()=>()=>geometry?.dispose(),[geometry]);
+  useEffect(()=>{gl.domElement.dataset.waterCells=String(geometry ? geometry.index.count/6 : 0);},[gl,geometry]);
   if(!geometry)return null;
-  return <mesh geometry={geometry} name="shallow-water" receiveShadow>
-    <meshStandardMaterial color="#70c5c8" transparent opacity={0.65} roughness={0.22} metalness={0.15} depthWrite={false} />
-  </mesh>;
+  return <mesh geometry={geometry} material={material} name="shallow-water" receiveShadow dispose={null} />;
 }
