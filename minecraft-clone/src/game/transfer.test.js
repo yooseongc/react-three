@@ -27,7 +27,7 @@ test('world listing ignores backups and unrelated keys',()=>{
  expect(listWorlds(localStorage)).toHaveLength(2);
 });
 test('settings clamp sensitivity and recover from corrupt or denied storage',()=>{
- expect(cleanSettings({sensitivity:999,shadows:false,soundEnabled:'yes'})).toEqual({sensitivity:2,shadows:false,soundEnabled:true,showMinimap:true});
+ expect(cleanSettings({sensitivity:999,shadows:false,soundEnabled:'yes'})).toEqual({sensitivity:2,shadows:false,soundEnabled:true,showMinimap:true,dayCycle:true,timeOfDay:9});
  expect(loadSettings(null).sensitivity).toBe(1);
  localStorage.setItem(SETTINGS_KEY,'broken');expect(loadSettings(localStorage).soundEnabled).toBe(true);
 });

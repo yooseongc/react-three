@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { Sky } from '@react-three/drei';
+import DayNight from './components/DayNight';
 import Ground from './components/Ground';
 import Player from './components/Player';
 import Cubes from './components/Cubes';
@@ -9,7 +9,7 @@ import { useStore } from './hooks/useStore';
 import Decorations from './components/Decorations';
 import Water from './components/Water';
 import BlockParticles from './components/BlockParticles';
-import { landscape } from './game/landscape';
+
 
 class SceneErrorBoundary extends React.Component {
   state = { error: false };
@@ -55,13 +55,7 @@ export default function App() {
         // Count both shadow and main passes, reset once at the next frame boundary.
         gl.info.autoReset = false;
       }}>
-      <Sky sunPosition={landscape ? [80, 28, -60] : [100, 40, 100]} {...(landscape ? { turbidity: 6, rayleigh: 1.5 } : {})} />
-      <fog attach="fog" args={[landscape ? '#c4d8cb' : '#bed4d8', 45, 110]} />
-      {/* Preserve pre-r155 illumination under Three's physically based lighting. */}
-      <ambientLight intensity={0.65 * Math.PI} />
-      <directionalLight castShadow intensity={0.85 * Math.PI} position={[20, 30, 10]}
-        shadow-mapSize-width={1024} shadow-mapSize-height={1024}
-        shadow-camera-left={-20} shadow-camera-right={20} shadow-camera-top={20} shadow-camera-bottom={-20} />
+      <DayNight />
       <Ground />
       <Cubes />
       <Decorations />

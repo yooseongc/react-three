@@ -12,6 +12,7 @@ import PerformancePanel from './PerformancePanel';
 import { landscape, landscapeSeed } from '../game/landscape';
 import WorldManager from './WorldManager';
 import Settings from './Settings';
+import WorldTime from './WorldTime';
 import PlacementHint from './PlacementHint';
 import { RECENT_KEY, safeWorldQuery } from '../game/transfer';
 
@@ -43,6 +44,7 @@ export default function Hud() {
         ? state.saveStatus : state.dirty ? '변경 사항 저장 중…' : state.saveStatus} · {state.cubes.length} 블록</span>
     </header>
     {state.showMinimap && <Minimap />}
+    <WorldTime />
     <PerformancePanel />
     {state.playing && <PlacementHint />}
     {state.playing && <div className="history-hint" role="status">{state.historyNotice || `Ctrl+Z 취소 ${state.undoStack.length} · Ctrl+Y 다시 실행 ${state.redoStack.length}`}</div>}
