@@ -6,6 +6,9 @@ import Weather from './components/Weather';
 import Wildlife from './components/Wildlife';
 import Ground from './components/Ground';
 import Player from './components/Player';
+import TourCamera from './components/TourCamera';
+import TourHud from './components/TourHud';
+import { isTour } from './game/tourSession';
 import Cubes from './components/Cubes';
 import Hud from './components/Hud';
 import { useStore } from './hooks/useStore';
@@ -78,10 +81,10 @@ export default function App() {
       <Wildlife />
       <Water />
       <BlockParticles />
-      <Player />
+      {isTour ? <TourCamera /> : <Player />}
     </Canvas>
-    <Hud />
-    <DiscoveryHint />
-    <NowPlaying />
+    {isTour ? <TourHud /> : <Hud />}
+    {!isTour && <DiscoveryHint />}
+    {!isTour && <NowPlaying />}
   </SceneErrorBoundary>;
 }

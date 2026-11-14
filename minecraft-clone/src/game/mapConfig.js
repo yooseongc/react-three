@@ -23,6 +23,7 @@ function activeConfig() {
   if(params.has('slot')) {
     try {const data=JSON.parse(localStorage.getItem('voxel-garden.copy.'+params.get('slot')));return mapConfig(data?.kind==='terrain'?data:{});}catch{return mapConfig();}
   }
+  if(params.get('tour')==='1' && params.has('world') && !params.has('demo'))return mapConfig({mapType:params.get('map'),size:params.get('size')==='150'?150:100,generator:2});
   return mapConfig(params.has('world')&&!params.has('demo')?{mapType:params.get('map'),size:params.get('size'),generator:params.get('gen')}:{});
 }
 export const activeMap=activeConfig();

@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { isTour } from '../game/tourSession';
 import { BLOCK_TYPES, ALL_BLOCK_TYPES, loadWorld, STORAGE_KEY, validPosition } from '../game/world';
 import { landscape, landscapeSeed } from '../game/landscape';
 import { serializeTerrain, restoreTerrain } from '../game/terrain';
@@ -25,7 +26,7 @@ if (!landscape && !slotId) {
   catch { initial = load(null); }
   if (demoMode === 'benchmark') initial = { cubes: createBenchmarkWorld(), canSave: false, notice: '성능 측정 월드입니다. 변경 사항은 저장하지 않습니다.' };
 }
-if (landscape && !slotId) {
+if (landscape && !slotId && !isTour) {
   initial = { cubes: landscape.cubes, canSave: true, notice: '' };
   try {
     const raw = localStorage.getItem(storageKey);
@@ -37,6 +38,7 @@ if (landscape && !slotId) {
 }
 if (slotId) initial = slotData ? { cubes: slotData.cubes, canSave: true, notice: '' }
   : { cubes: [], canSave: false, notice: slotError + ' 월드 메뉴에서 다른 월드를 선택하세요.' };
+if (isTour) initial = { cubes: landscape.cubes, canSave: false, notice: '' };
 let settings;
 try { settings = loadSettings(localStorage); } catch { settings = cleanSettings(null); }
 
@@ -47,10 +49,12 @@ export const useStore = create((set, get) => ({
   palettePage: 0,
   flying: false,
   ...settings,
+  ...(isTour ? {dayCycle:true,weatherMode:'auto',timeOfDay:9} : {}),
   settingsNotice: '',
   updateSettings: patch => {
     const next = cleanSettings({ ...get(), ...patch });
     set(next);
+    if (isTour) return;
     try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(next)); set({ settingsNotice: '' }); }
     catch { set({ settingsNotice: '설정을 저장하지 못했습니다. 현재 세션에만 적용합니다.' }); }
   },

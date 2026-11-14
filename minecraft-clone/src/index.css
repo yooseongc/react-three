@@ -327,3 +327,24 @@ dd { margin: 5px 0 0; font-size: 12px; color: #aabdaf; }
  .mode-badge, .hud:has(.hotbar) .mode-badge { top:12px; bottom:auto; }
  .hud.touch-mode ~ .discovery-hint { top:16px; left:50%; transform:translateX(-50%); text-align:center; }
 }
+
+.tour-entry { width:100%; margin-top:10px; padding:12px; border:1px solid #c8dab34a; border-radius:9px; color:#dfebce; background:#ffffff08; cursor:pointer; }
+.tour-entry span { margin-left:8px; }
+.tour-hud { position:fixed; inset:0; pointer-events:none; color:#eef4e5; text-shadow:0 2px 8px #142c25; }
+.tour-title { position:absolute; top:max(28px,env(safe-area-inset-top)); left:28px; }
+.tour-title span { font-size:10px; letter-spacing:.2em; }
+.tour-title h1 { font-size:22px; font-weight:400; margin:8px 0; }
+.tour-place { position:absolute; top:28%; width:100%; text-align:center; font-size:20px; letter-spacing:.08em; animation:tour-caption 8s both; }
+@keyframes tour-caption { 0%,100% {opacity:0;} 15%,65% {opacity:1;} }
+.tour-pause { position:absolute; left:50%; top:48%; transform:translate(-50%,-50%); text-align:center; width:min(340px,90vw); padding:24px; box-sizing:border-box; background:#173027d9; border:1px solid #c8dab340; border-radius:18px; pointer-events:auto; }
+.tour-pause p { font-size:22px; margin:0 0 24px; }
+.tour-pause button { width:100%; padding:14px; border:0; border-radius:9px; cursor:pointer; }
+.tour-pause small { display:block; margin-top:16px; font-size:11px; color:#bacdbb; }
+.tour-toolbar { position:absolute; bottom:max(24px,env(safe-area-inset-bottom)); left:50%; transform:translateX(-50%); display:flex; gap:6px; padding:7px; border-radius:14px; background:#173027df; pointer-events:auto; white-space:nowrap; }
+.tour-toolbar button { background:transparent; color:#e5efd9; border:1px solid #cad9ad40; border-radius:8px; padding:12px 16px; min-height:44px; cursor:pointer; }
+.tour-toolbar button:disabled { opacity:.5; }
+.tour-hud .music-current { position:absolute; bottom:100px; left:50%; transform:translateX(-50%); width:max-content; max-width:85vw; text-align:center; background:#173027bb; padding:8px 12px; border-radius:8px; font-size:11px; }
+.tour-fade { position:absolute; inset:0; background:#14251f; opacity:0; transition:opacity .3s; z-index:2; }
+.tour-fade.active { opacity:1; }
+@media(max-width:600px) { .tour-title {left:18px;top:22px;} .tour-toolbar {gap:4px;padding:6px;} .tour-toolbar button {padding:10px 9px;font-size:12px;} }
+@media(max-height:500px) { .tour-title h1 {font-size:16px;} .tour-hud .music-current {left:auto;right:16px;top:16px;bottom:auto;transform:none;max-width:40vw;} .tour-pause {padding:16px;} .tour-pause p {margin-bottom:10px;font-size:18px;} .tour-toolbar {bottom:10px;} }

@@ -20,6 +20,7 @@ import { activeMap, MAP_TYPES } from '../game/mapConfig';
 import { RECENT_KEY, safeWorldQuery } from '../game/transfer';
 import ControlsGuide from './ControlsGuide';
 import CurrentWorld from './CurrentWorld';
+import { newTourQuery } from '../game/tour';
 
 const icons = [dirt, grass, glass, wood, log];
 export default function Hud() {
@@ -85,7 +86,10 @@ export default function Hud() {
       <div className="menu-content">
         {tab==='world'&&<WorldManager />}
         {tab==='settings'&&<Settings />}
-        {tab==='play'&&<div className="pause-rest"><p>바람이 머무는 곳에, 나의 작은 하루.</p><CurrentWorld /><button className="primary" disabled={!state.ready} onClick={start}>{!state.ready?'월드 준비 중…':started?'계속하기':'산책 시작'}</button><ControlsGuide touchMode={state.touchMode} /></div>}
+        {tab==='play'&&<div className="pause-rest"><p>바람이 머무는 곳에, 나의 작은 하루.</p><CurrentWorld /><button className="primary" disabled={!state.ready} onClick={start}>{!state.ready?'월드 준비 중…':started?'계속하기':'산책 시작'}</button><button className="tour-entry" onClick={()=>{
+          if(state.dirty && !state.saveWorld()){state.setControlError('월드를 저장하지 못했습니다. 파일로 보관한 뒤 다시 시도해주세요.');return;}
+          window.location.assign(newTourQuery(window.location.search));
+        }}>풍경 감상 <span aria-hidden="true">↗</span></button><ControlsGuide touchMode={state.touchMode} /></div>}
       </div>
       {state.notice&&<p className="notice" role="status">{state.notice}</p>}
       {state.controlError&&<p className="notice" role="alert">{state.controlError}</p>}
