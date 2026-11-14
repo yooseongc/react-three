@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useStore } from '../hooks/useStore';
-import { BLOCK_LABELS, BLOCK_TYPES } from '../game/world';
+import { BLOCK_LABELS, BLOCK_TYPES, BLOCK_COLORS } from '../game/world';
+import { unlockAudio } from '../game/feedback';
 import dirt from '../images/dirt.jpg';
 import grass from '../images/grass.jpg';
 import glass from '../images/glass.png';
@@ -19,6 +20,7 @@ export default function Hud() {
   }, [state.playing]);
   const start = async () => {
     state.setControlError('');
+    if (state.soundEnabled) unlockAudio();
     try {
       const canvas = document.querySelector('canvas');
       if (!canvas?.requestPointerLock) throw new Error('unsupported');
@@ -29,20 +31,24 @@ export default function Hud() {
   };
   return <div className="hud">
     <header className="status-bar">
-      <div><strong>VOXEL GARDEN</strong><span>{landscape ? `M3 · 물빛 숲 · ${landscapeSeed}` : 'M2 · 작은 건축 연습장'}</span></div>
+      <div><strong>VOXEL GARDEN</strong><span>{landscape ? `물빛 숲 · ${landscapeSeed}` : '작은 건축 연습장'} · M4</span></div>
       <span role="status">{state.saveStatus.includes('실패') || state.saveStatus.includes('불가')
         ? state.saveStatus : state.dirty ? '변경 사항 저장 중…' : state.saveStatus} · {state.cubes.length} 블록</span>
     </header>
     <Minimap />
     <PerformancePanel />
+    <div className="build-status">{state.flying ? '비행 중 · Space 상승 / C 하강' : '걷는 중 · F 비행 전환'} · {BLOCK_LABELS[BLOCK_TYPES.indexOf(state.texture)]}</div>
     {state.playing && <div className="crosshair" aria-hidden="true">+</div>}
     <div className="hotbar" aria-label="블록 선택">
-      {BLOCK_TYPES.map((type, i) => <button key={type} aria-label={BLOCK_LABELS[i]}
+      <button className="palette-switch" aria-label="재료 페이지 전환" onClick={state.changePage}>Q / E<br />{state.palettePage + 1} / 2</button>
+      {BLOCK_TYPES.slice(state.palettePage * 6, state.palettePage * 6 + 6).map((type, slot) => {
+        const i = state.palettePage * 6 + slot;
+        return <button key={type} aria-label={BLOCK_LABELS[i]}
         aria-pressed={state.texture === type} onClick={() => state.setTexture(type)}>
-        <kbd>{i + 1}</kbd><img src={icons[i]} alt="" /><span>{BLOCK_LABELS[i]}</span>
-      </button>)}
+        <kbd>{slot + 1}</kbd>{icons[i] ? <img src={icons[i]} alt="" /> : <span className={'material-swatch ' + type} style={{ backgroundColor: BLOCK_COLORS[i] }} />}<span>{BLOCK_LABELS[i]}</span>
+      </button>; })}
     </div>
-    <div className="controls-hint">WASD 이동 · Shift 달리기 · Space 점프 · 좌클릭 파괴 · 우클릭 설치 · 1–5 블록 · ESC 메뉴</div>
+    <div className="controls-hint">WASD 이동 · Shift 가속 · F 비행 · Space 점프/상승 · C 하강 · 좌/우클릭 파괴/설치 · 1–6 재료 · Q/E 페이지 · 휠 선택 · ESC</div>
     {!state.playing && <div className="menu-backdrop"><section className="menu" aria-label="게임 메뉴">
       <span className="eyebrow">작은 세계의 첫걸음</span>
       <h1>{started ? '잠시 쉬어가기' : '나만의 공간을 지어보세요'}</h1>
@@ -51,13 +57,15 @@ export default function Hud() {
       {!landscape && <p><a href="?world=willow">물빛 숲 탐험하기 →</a></p>}
       {landscape && <p><a href="?">기존 건축 월드로 돌아가기</a></p>}
       <dl><div><dt>W A S D</dt><dd>이동</dd></div><div><dt>SPACE</dt><dd>점프</dd></div>
-        <div><dt>마우스 좌 / 우</dt><dd>파괴 / 설치</dd></div><div><dt>ESC</dt><dd>일시정지</dd></div></dl>
+        <div><dt>마우스 좌 / 우</dt><dd>파괴 / 설치</dd></div><div><dt>F · SPACE / C</dt><dd>비행 전환 · 상승 / 하강</dd></div>
+        <div><dt>Q / E · 1–6</dt><dd>재료 페이지 · 슬롯 선택</dd></div><div><dt>휠 · ESC</dt><dd>재료 순환 · 일시정지</dd></div></dl>
       {state.notice && <p className="notice" role="status">{state.notice}</p>}
       {state.controlError && <p className="notice" role="alert">{state.controlError}</p>}
       <button className="primary" disabled={!state.ready} onClick={start}>
         {!state.ready ? '월드 준비 중…' : started ? '계속하기' : '산책 시작'}
       </button>
       <button className="save-button" onClick={state.saveWorld}>지금 저장</button>
+      <button className="save-button" aria-pressed={state.soundEnabled} onClick={state.toggleSound}>효과음 {state.soundEnabled ? '켜짐' : '꺼짐'}</button>
       <small>데스크톱 · 마우스 잠금 사용 · 이 브라우저에 자동 저장</small>
     </section></div>}
   </div>;

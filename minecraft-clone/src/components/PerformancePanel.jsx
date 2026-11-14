@@ -18,7 +18,7 @@ export default function PerformancePanel() {
   }, []);
   if (!isDemo) return null;
   return <div className="performance-panel">
-    <strong>{demoMode === 'benchmark' ? 'M2 성능 측정 월드' : 'M2 청크 연습장'}</strong>
+    <strong>{demoMode === 'build' ? 'M4 · 작은 집 건축 데모' : demoMode === 'benchmark' ? 'M2 성능 측정 월드' : 'M2 청크 연습장'}</strong>
     <span ref={text} />
     <small>{demoMode === 'benchmark' ? '측정 전용 · 저장하지 않음' : '기존 월드와 별도로 저장됩니다'}</small>
   </div>;

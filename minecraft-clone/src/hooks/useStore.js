@@ -3,12 +3,13 @@ import { BLOCK_TYPES, ALL_BLOCK_TYPES, loadWorld, STORAGE_KEY, validPosition } f
 import { landscape, landscapeSeed } from '../game/landscape';
 import { serializeTerrain, restoreTerrain } from '../game/terrain';
 import { createVoxelWorld, editVoxel } from '../game/voxels';
-import { createBenchmarkWorld, createDemoWorld, demoMode, isDemo } from '../game/demo';
+import { createBenchmarkWorld, createDemoWorld, createBuildingDemo, demoMode, isDemo } from '../game/demo';
 
-const storageKey = landscape ? 'voxel-garden.terrain.v1.' + encodeURIComponent(landscapeSeed) : isDemo ? 'voxel-garden.m2-demo.v1' : STORAGE_KEY;
+const storageKey = landscape ? 'voxel-garden.terrain.v1.' + encodeURIComponent(landscapeSeed)
+  : demoMode === 'build' ? 'voxel-garden.m4-demo.v1' : isDemo ? 'voxel-garden.m2-demo.v1' : STORAGE_KEY;
 const terrainBase = landscape ? new Map(landscape.cubes.map(c => [c.key, c])) : null;
 const load = storage => loadWorld(storage, storageKey, isDemo ? null : 'world',
-  demoMode === 'chunks' ? createDemoWorld : undefined);
+  demoMode === 'build' ? createBuildingDemo : demoMode === 'chunks' ? createDemoWorld : undefined);
 let initial;
 if (!landscape) {
   try { initial = load(window.localStorage); }
@@ -30,6 +31,12 @@ export const useStore = create((set, get) => ({
   ...initial,
   world: createVoxelWorld(initial.cubes),
   texture: 'dirt',
+  palettePage: 0,
+  flying: false,
+  soundEnabled: true,
+  toggleFlight: () => set(state => ({ flying: !state.flying })),
+  toggleSound: () => set(state => ({ soundEnabled: !state.soundEnabled })),
+  changePage: () => set(state => ({ palettePage: 1 - state.palettePage })),
   playing: false,
   ready: false,
   dirty: false,
@@ -38,7 +45,7 @@ export const useStore = create((set, get) => ({
   setPlaying: playing => set({ playing }),
   setReady: ready => set({ ready }),
   setControlError: controlError => set({ controlError }),
-  setTexture: texture => { if (BLOCK_TYPES.includes(texture)) set({ texture }); },
+  setTexture: texture => { if (BLOCK_TYPES.includes(texture)) set({ texture, palettePage: Math.floor(BLOCK_TYPES.indexOf(texture) / 6) }); },
   addCube: (x, y, z) => {
     const pos = [x, y, z];
     const key = pos.join(',');

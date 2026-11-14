@@ -1,6 +1,6 @@
 import { useFrame, useThree } from '@react-three/fiber';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
-import { Vector3 } from 'three';
+import { Vector3, BoxGeometry, EdgesGeometry } from 'three';
 import { useKeyboardControls } from '../hooks/useKeyboardControls';
 import { useStore } from '../hooks/useStore';
 import { overlapsPlayer, spawnPosition, stepPlayer } from '../game/world';
@@ -8,6 +8,7 @@ import { FPVControls } from './FPVControls';
 import { horizontalHeading, playerView } from '../game/navigation';
 import { raycastVoxels } from '../game/voxels';
 import { renderMetrics } from '../game/metrics';
+import { blockFeedback } from '../game/feedback';
 
 export default function Player() {
   const { camera, gl } = useThree();
@@ -16,6 +17,12 @@ export default function Player() {
   const outline = useRef();
   const forward = useMemo(() => new Vector3(), []);
   const heading = useRef(0);
+  const wasFlying = useRef(false);
+  const edges = useMemo(() => {
+    const box = new BoxGeometry(1.008, 1.008, 1.008);
+    const geometry = new EdgesGeometry(box); box.dispose(); return geometry;
+  }, []);
+  useEffect(() => () => edges.dispose(), [edges]);
   const target = useCallback(() => {
     camera.getWorldDirection(forward);
     return raycastVoxels(useStore.getState().world, camera.position, forward);
@@ -30,11 +37,21 @@ export default function Player() {
       if (!hit) return;
       const state = useStore.getState();
       const block = hit.block;
-      if (event.button === 0) { if (block) state.removeCube(...block); return; }
+      if (event.button === 0) {
+        if (block) {
+          const texture = state.world.blocks.get(block.join(',')).texture;
+          state.removeCube(...block);
+          blockFeedback(block, texture, true, state.soundEnabled);
+        }
+        return;
+      }
       const pos = block
         ? block.map((value, i) => value + hit.normal[i])
         : [Math.round(hit.point[0]), 1, Math.round(hit.point[2])];
-      if (!overlapsPlayer(pos, player.current)) state.addCube(...pos);
+      if (!overlapsPlayer(pos, player.current)) {
+        state.addCube(...pos);
+        if (useStore.getState().world !== state.world) blockFeedback(pos, state.texture, false, state.soundEnabled);
+      }
     };
     const context = event => event.preventDefault();
     gl.domElement.addEventListener('mousedown', click);
@@ -51,7 +68,9 @@ export default function Player() {
     camera.getWorldDirection(forward);
     heading.current = horizontalHeading(forward, heading.current);
     if (state.playing) {
-      player.current = stepPlayer(player.current, input.current, heading.current, delta, state.world);
+      if (wasFlying.current !== state.flying) player.current.vy = 0;
+      wasFlying.current = state.flying;
+      player.current = stepPlayer(player.current, { ...input.current, flying: state.flying }, heading.current, delta, state.world);
       input.current.jump = false;
     }
     const p = player.current;
@@ -67,6 +86,7 @@ export default function Player() {
     // Read-only telemetry supports repeatable browser QA without changing gameplay.
     gl.domElement.dataset.position = [p.x, p.y, p.z].map(n => n.toFixed(3)).join(',');
     gl.domElement.dataset.grounded = String(p.grounded);
+    gl.domElement.dataset.flying = String(state.flying);
     gl.domElement.dataset.heading = String(heading.current);
     gl.domElement.dataset.direction = [forward.x, forward.y, forward.z].join(',');
     gl.domElement.dataset.target = block ? block.join(',') : hit?.ground ? 'ground' : '';
@@ -84,9 +104,8 @@ export default function Player() {
 
   return <>
     <FPVControls />
-    <mesh ref={outline} visible={false}>
-      <boxGeometry args={[1.006, 1.006, 1.006]} />
-      <meshBasicMaterial color="#fff4b0" wireframe />
-    </mesh>
+    <lineSegments ref={outline} visible={false} geometry={edges}>
+      <lineBasicMaterial color="#fff4b0" toneMapped={false} />
+    </lineSegments>
   </>;
 }

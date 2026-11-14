@@ -1,8 +1,9 @@
 import { nearbyBlocks } from './voxels';
 
-export const BLOCK_TYPES = ['dirt', 'grass', 'glass', 'wood', 'log'];
-export const ALL_BLOCK_TYPES = [...BLOCK_TYPES, 'sand', 'stone', 'leaves'];
-export const BLOCK_LABELS = ['흙', '잔디', '유리', '목재', '원목'];
+export const BLOCK_TYPES = ['dirt', 'grass', 'glass', 'wood', 'log', 'sand', 'stone', 'leaves', 'brick', 'plaster', 'roof', 'slate'];
+export const ALL_BLOCK_TYPES = BLOCK_TYPES;
+export const BLOCK_LABELS = ['흙', '잔디', '유리', '목재', '원목', '모래', '돌', '잎', '벽돌', '회벽', '기와', '판석'];
+export const BLOCK_COLORS = ['#ba8a60', '#a0bd65', '#b3e4e9', '#e0bf84', '#947252', '#d8c591', '#848f91', '#5e8b4c', '#b36b52', '#e7dfc8', '#697e86', '#9eaaa6'];
 export const WORLD_LIMIT = 49;
 export const FLOOR = 0.5;
 export const PLAYER_RADIUS = 0.3;
@@ -80,11 +81,13 @@ export function stepPlayer(player, input, yaw, delta, cubes) {
   const p = { ...player };
   const forward = Number(!!input.forward) - Number(!!input.backward);
   const side = Number(!!input.right) - Number(!!input.left);
-  const length = Math.hypot(forward, side) || 1;
+  const vertical = input.flying ? Number(!!input.ascend) - Number(!!input.descend) : 0;
+  const length = Math.hypot(forward, side, vertical) || 1;
   const speed = input.sprint ? 7 : 4.5;
   const vx = (side * Math.cos(yaw) - forward * Math.sin(yaw)) / length * speed;
   const vz = (-forward * Math.cos(yaw) - side * Math.sin(yaw)) / length * speed;
-  if (input.jump && p.grounded) { p.vy = 8; p.grounded = false; }
+  if (input.flying) p.vy = vertical / length * speed;
+  else if (input.jump && p.grounded) { p.vy = 8; p.grounded = false; }
   const dt = Math.min(Math.max(delta, 0), 0.05);
   const steps = Math.max(1, Math.ceil(dt / (1 / 120)));
   const h = dt / steps;
@@ -98,7 +101,7 @@ export function stepPlayer(player, input, yaw, delta, cubes) {
         }
       }
     }
-    p.vy -= 24 * h;
+    if (!input.flying) p.vy -= 24 * h;
     p.y += p.vy * h;
     p.grounded = false;
     for (const { pos } of nearbyBlocks(cubes, p)) {
@@ -108,6 +111,7 @@ export function stepPlayer(player, input, yaw, delta, cubes) {
       p.vy = 0;
     }
     if (p.y <= FLOOR) { p.y = FLOOR; p.vy = 0; p.grounded = true; }
+    if (p.y > 70) { p.y = 70; p.vy = 0; }
   }
   return p;
 }

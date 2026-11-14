@@ -13,11 +13,14 @@ export const wood = new TextureLoader().load(woodImg);
 export const log = new TextureLoader().load(logImg);
 
 // Small deterministic pixel palettes keep new natural materials crisp and self-contained.
-function naturalTexture(rgb) {
+function naturalTexture(rgb, pattern) {
     const pixels = new Uint8Array(16 * 16 * 4);
     for (let i = 0; i < 256; i++) {
         const shade = ((Math.imul(i + 7, 1103515245) >>> 16) % 23) - 11;
-        rgb.forEach((v, c) => { pixels[i * 4 + c] = Math.max(0, Math.min(255, v + shade)); });
+        const x = i % 16, y = Math.floor(i / 16);
+        const line = pattern === 'brick' ? y % 8 === 0 || (x + (y >= 8 ? 4 : 0)) % 8 === 0
+          : pattern === 'roof' ? y % 4 === 0 : pattern === 'slate' ? x === 0 || y === 0 : false;
+        rgb.forEach((v, c) => { pixels[i * 4 + c] = Math.max(0, Math.min(255, v + shade - (line ? 32 : 0))); });
         pixels[i * 4 + 3] = 255;
     }
     const texture = new DataTexture(pixels, 16, 16, RGBAFormat);
@@ -28,6 +31,10 @@ function naturalTexture(rgb) {
 export const sand = naturalTexture([216, 197, 145]);
 export const stone = naturalTexture([132, 143, 145]);
 export const leaves = naturalTexture([94, 139, 76]);
+export const brick = naturalTexture([179, 107, 82], 'brick');
+export const plaster = naturalTexture([231, 223, 200]);
+export const roof = naturalTexture([105, 126, 134], 'roof');
+export const slate = naturalTexture([158, 170, 166], 'slate');
 
 // Keep ground repetition separate from grass block UVs.
 export const ground = new TextureLoader().load(grassImg);

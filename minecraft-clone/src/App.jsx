@@ -8,6 +8,7 @@ import Hud from './components/Hud';
 import { useStore } from './hooks/useStore';
 import Decorations from './components/Decorations';
 import Water from './components/Water';
+import BlockParticles from './components/BlockParticles';
 import { landscape } from './game/landscape';
 
 class SceneErrorBoundary extends React.Component {
@@ -60,6 +61,7 @@ export default function App() {
       <Cubes />
       <Decorations />
       <Water />
+      <BlockParticles />
       <Player />
     </Canvas>
     <Hud />

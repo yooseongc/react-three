@@ -1,5 +1,9 @@
+import buildingDemo from './building-demo.json';
+
 export const demoMode = new URLSearchParams(window.location.search).get('demo');
-export const isDemo = demoMode === 'chunks' || demoMode === 'benchmark';
+export const isDemo = demoMode === 'chunks' || demoMode === 'benchmark' || demoMode === 'build';
+// Captured from the M4 browser build exercise: 125 placements, 29 scaffold removals.
+export const createBuildingDemo = () => buildingDemo.map(cube => ({ ...cube, pos: [...cube.pos] }));
 
 export function createBenchmarkWorld() {
   const cubes = [];

@@ -7,7 +7,7 @@ const SIZE = 192;
 const PAD = 14;
 const SCALE = (SIZE - PAD * 2) / 100;
 const project = value => SIZE / 2 + value * SCALE;
-const colors = { dirt: '#ba8a60', grass: '#a0bd65', glass: '#b3e4e9', wood: '#e0bf84', log: '#947252', sand: '#d8c591', stone: '#848f91', leaves: '#426d43' };
+const colors = { dirt: '#ba8a60', grass: '#a0bd65', glass: '#b3e4e9', wood: '#e0bf84', log: '#947252', sand: '#d8c591', stone: '#848f91', leaves: '#426d43', brick: '#b36b52', plaster: '#e7dfc8', roof: '#697e86', slate: '#9eaaa6' };
 
 export default function Minimap() {
   const canvas = useRef();

@@ -12,6 +12,14 @@ button:focus-visible { outline: 3px solid #fff4b0; outline-offset: 4px; }
 .hotbar button { position: relative; display: grid; justify-items: center; gap: 3px; width: 66px; padding: 7px; border: 2px solid transparent; border-radius: 7px; background: #ffffff0c; color: #fff; font-size: 11px; }
 .hotbar button[aria-pressed=true] { border-color: #dfedb3; background: #d5e8ae28; }
 .hotbar img { width: 32px; height: 32px; image-rendering: pixelated; }
+.material-swatch { display: block; width: 32px; height: 32px; box-shadow: inset -6px -6px #0002, inset 3px 3px #fff2; }
+.material-swatch.brick { background-image: repeating-linear-gradient(0deg, transparent 0 7px, #0003 7px 8px); }
+.material-swatch.roof, .material-swatch.slate { background-image: repeating-linear-gradient(0deg, transparent 0 5px, #0003 5px 6px); }
+.hotbar .palette-switch { align-content: center; width: 48px; color: #d3e5a5; line-height: 1.8; }
+.build-status { position: absolute; bottom: 136px; width: 100%; text-align: center; font-size: 12px; text-shadow: 0 1px 4px #000; }
+.menu { max-height: calc(100vh - 44px); overflow-y: auto; }
+.menu a { color: #d3e5a5; }
+@media (max-width: 700px) { .hotbar { gap: 3px; } .hotbar button { width: 43px; padding: 5px 2px; } .controls-hint { padding: 0 10px; font-size: 10px; } }
 .hotbar kbd { position: absolute; top: 3px; left: 4px; font-size: 10px; }
 .controls-hint { position: absolute; bottom: 17px; width: 100%; text-align: center; font-size: 12px; text-shadow: 0 1px 4px #000; }
 .menu-backdrop { position: absolute; inset: 0; display: grid; place-items: center; background: #132c2538; pointer-events: auto; padding: 22px; }
