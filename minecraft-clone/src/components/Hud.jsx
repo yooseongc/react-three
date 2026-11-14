@@ -10,11 +10,15 @@ import log from '../images/log.jpg';
 import Minimap from './Minimap';
 import PerformancePanel from './PerformancePanel';
 import { landscape, landscapeSeed } from '../game/landscape';
+import WorldManager from './WorldManager';
+import Settings from './Settings';
+import { RECENT_KEY, safeWorldQuery } from '../game/transfer';
 
 const icons = [dirt, grass, glass, wood, log];
 export default function Hud() {
   const state = useStore();
   const [started, setStarted] = useState(false);
+  const [tab, setTab] = useState('play');
   useEffect(() => {
     if (state.playing) setStarted(true);
   }, [state.playing]);
@@ -25,17 +29,19 @@ export default function Hud() {
       const canvas = document.querySelector('canvas');
       if (!canvas?.requestPointerLock) throw new Error('unsupported');
       await canvas.requestPointerLock();
+      const query = safeWorldQuery(window.location.search || '?');
+      if (query) { try { localStorage.setItem(RECENT_KEY, query); } catch { /* Play without recent-world persistence. */ } }
     } catch {
       state.setControlError('마우스 잠금을 사용할 수 없습니다. 데스크톱 브라우저에서 다시 시도해주세요.');
     }
   };
-  return <div className="hud">
+  return <div className={'hud' + (state.playing ? '' : ' is-paused')}>
     <header className="status-bar">
-      <div><strong>VOXEL GARDEN</strong><span>{landscape ? `물빛 숲 · ${landscapeSeed}` : '작은 건축 연습장'} · M4</span></div>
+      <div><strong>VOXEL GARDEN</strong><span>{landscape ? `물빛 숲 · ${landscapeSeed}` : '작은 건축 연습장'}</span></div>
       <span role="status">{state.saveStatus.includes('실패') || state.saveStatus.includes('불가')
         ? state.saveStatus : state.dirty ? '변경 사항 저장 중…' : state.saveStatus} · {state.cubes.length} 블록</span>
     </header>
-    <Minimap />
+    {state.showMinimap && <Minimap />}
     <PerformancePanel />
     <div className="build-status">{state.flying ? '비행 중 · Space 상승 / C 하강' : '걷는 중 · F 비행 전환'} · {BLOCK_LABELS[BLOCK_TYPES.indexOf(state.texture)]}</div>
     {state.playing && <div className="crosshair" aria-hidden="true">+</div>}
@@ -50,23 +56,28 @@ export default function Hud() {
     </div>
     <div className="controls-hint">WASD 이동 · Shift 가속 · F 비행 · Space 점프/상승 · C 하강 · 좌/우클릭 파괴/설치 · 1–6 재료 · Q/E 페이지 · 휠 선택 · ESC</div>
     {!state.playing && <div className="menu-backdrop"><section className="menu" aria-label="게임 메뉴">
-      <span className="eyebrow">작은 세계의 첫걸음</span>
-      <h1>{started ? '잠시 쉬어가기' : '나만의 공간을 지어보세요'}</h1>
+      <span className="eyebrow">VOXEL GARDEN</span>
+      <h1>{started ? '잠시 쉬어가기' : '작은 세계, 나만의 쉼터'}</h1>
+      <nav className="menu-tabs" aria-label="메뉴 구분">
+        {[['play','플레이'],['world','월드'],['settings','설정']].map(([id,label])=><button key={id} aria-pressed={tab===id} onClick={()=>setTab(id)}>{label}</button>)}
+      </nav>
+      {tab === 'world' && <WorldManager />}
+      {tab === 'settings' && <Settings />}
+      {tab === 'play' && <>
       <p>{landscape ? '북서쪽 호수와 언덕, 동쪽 모래 해변을 찾아 걸어보세요. 단차는 Space로 넘을 수 있습니다.' : '잔디 위를 걷고, 블록을 쌓아보세요.'}<br />
         {landscape ? '물은 걸어서 건널 수 있는 얕은 수면입니다. 나무와 지형도 편집할 수 있습니다.' : '새로운 숲과 호수로 탐험을 떠나보세요.'}</p>
-      {!landscape && <p><a href="?world=willow">물빛 숲 탐험하기 →</a></p>}
-      {landscape && <p><a href="?">기존 건축 월드로 돌아가기</a></p>}
-      <dl><div><dt>W A S D</dt><dd>이동</dd></div><div><dt>SPACE</dt><dd>점프</dd></div>
+      <button className="save-button" onClick={()=>setTab('world')}>{landscape ? '다른 월드 / 파일 관리' : '숲 만들기 / 월드 이어하기'}</button>
+      <details><summary>조작 안내</summary><dl><div><dt>W A S D</dt><dd>이동</dd></div><div><dt>SPACE</dt><dd>점프</dd></div>
         <div><dt>마우스 좌 / 우</dt><dd>파괴 / 설치</dd></div><div><dt>F · SPACE / C</dt><dd>비행 전환 · 상승 / 하강</dd></div>
-        <div><dt>Q / E · 1–6</dt><dd>재료 페이지 · 슬롯 선택</dd></div><div><dt>휠 · ESC</dt><dd>재료 순환 · 일시정지</dd></div></dl>
+        <div><dt>Q / E · 1–6</dt><dd>재료 페이지 · 슬롯 선택</dd></div><div><dt>휠 · ESC</dt><dd>재료 순환 · 일시정지</dd></div></dl></details>
+      </>}
       {state.notice && <p className="notice" role="status">{state.notice}</p>}
       {state.controlError && <p className="notice" role="alert">{state.controlError}</p>}
       <button className="primary" disabled={!state.ready} onClick={start}>
         {!state.ready ? '월드 준비 중…' : started ? '계속하기' : '산책 시작'}
       </button>
       <button className="save-button" onClick={state.saveWorld}>지금 저장</button>
-      <button className="save-button" aria-pressed={state.soundEnabled} onClick={state.toggleSound}>효과음 {state.soundEnabled ? '켜짐' : '꺼짐'}</button>
-      <small>데스크톱 · 마우스 잠금 사용 · 이 브라우저에 자동 저장</small>
+      <small>PC 키보드·마우스 전용 · 이 브라우저에 저장<br />중요한 건축물은 월드 메뉴에서 파일로 보관하세요.</small>
     </section></div>}
   </div>;
 }

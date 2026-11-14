@@ -4,19 +4,22 @@ import { landscape, landscapeSeed } from '../game/landscape';
 import { serializeTerrain, restoreTerrain } from '../game/terrain';
 import { createVoxelWorld, editVoxel } from '../game/voxels';
 import { createBenchmarkWorld, createDemoWorld, createBuildingDemo, demoMode, isDemo } from '../game/demo';
+import { slotId, slotData, slotError } from '../game/session';
+import { exportWorld, SLOT_PREFIX } from '../game/transfer';
+import { loadSettings, cleanSettings, SETTINGS_KEY } from '../game/settings';
 
-const storageKey = landscape ? 'voxel-garden.terrain.v1.' + encodeURIComponent(landscapeSeed)
+const storageKey = slotId ? SLOT_PREFIX + slotId : landscape ? 'voxel-garden.terrain.v1.' + encodeURIComponent(landscapeSeed)
   : demoMode === 'build' ? 'voxel-garden.m4-demo.v1' : isDemo ? 'voxel-garden.m2-demo.v1' : STORAGE_KEY;
 const terrainBase = landscape ? new Map(landscape.cubes.map(c => [c.key, c])) : null;
 const load = storage => loadWorld(storage, storageKey, isDemo ? null : 'world',
   demoMode === 'build' ? createBuildingDemo : demoMode === 'chunks' ? createDemoWorld : undefined);
 let initial;
-if (!landscape) {
+if (!landscape && !slotId) {
   try { initial = load(window.localStorage); }
   catch { initial = load(null); }
   if (demoMode === 'benchmark') initial = { cubes: createBenchmarkWorld(), canSave: false, notice: '성능 측정 월드입니다. 변경 사항은 저장하지 않습니다.' };
 }
-if (landscape) {
+if (landscape && !slotId) {
   initial = { cubes: landscape.cubes, canSave: true, notice: '' };
   try {
     const raw = localStorage.getItem(storageKey);
@@ -26,6 +29,10 @@ if (landscape) {
     }
   } catch { initial.canSave = false; initial.notice = '저장소에 접근하지 못했습니다. 이번 탐험은 저장되지 않습니다.'; }
 }
+if (slotId) initial = slotData ? { cubes: slotData.cubes, canSave: true, notice: '가져온 월드의 별도 복사본입니다.' }
+  : { cubes: [], canSave: false, notice: slotError + ' 월드 메뉴에서 다른 월드를 선택하세요.' };
+let settings;
+try { settings = loadSettings(localStorage); } catch { settings = cleanSettings(null); }
 
 export const useStore = create((set, get) => ({
   ...initial,
@@ -33,9 +40,16 @@ export const useStore = create((set, get) => ({
   texture: 'dirt',
   palettePage: 0,
   flying: false,
-  soundEnabled: true,
+  ...settings,
+  settingsNotice: '',
+  updateSettings: patch => {
+    const next = cleanSettings({ ...get(), ...patch });
+    set(next);
+    try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(next)); set({ settingsNotice: '' }); }
+    catch { set({ settingsNotice: '설정을 저장하지 못했습니다. 현재 세션에만 적용합니다.' }); }
+  },
   toggleFlight: () => set(state => ({ flying: !state.flying })),
-  toggleSound: () => set(state => ({ soundEnabled: !state.soundEnabled })),
+  toggleSound: () => get().updateSettings({ soundEnabled: !get().soundEnabled }),
   changePage: () => set(state => ({ palettePage: 1 - state.palettePage })),
   playing: false,
   ready: false,
@@ -62,7 +76,7 @@ export const useStore = create((set, get) => ({
   saveWorld: () => {
     if (!get().canSave) { set({ saveStatus: '저장 불가 · 브라우저 저장소 확인' }); return false; }
     try {
-      localStorage.setItem(storageKey, landscape
+      localStorage.setItem(storageKey, slotId ? JSON.stringify(exportWorld(get().cubes, landscapeSeed)) : landscape
         ? serializeTerrain(landscapeSeed, terrainBase, get().world.blocks)
         : JSON.stringify({ version: 1, cubes: get().cubes }));
       set({ dirty: false, saveStatus: '저장 완료' });

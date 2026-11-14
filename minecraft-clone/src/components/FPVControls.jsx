@@ -7,6 +7,8 @@ export function FPVControls() {
   const { camera, gl } = useThree();
   useEffect(() => {
     const controls = new PointerLockControls(camera, gl.domElement);
+    controls.pointerSpeed = useStore.getState().sensitivity;
+    const unsubscribe = useStore.subscribe(state => { controls.pointerSpeed = state.sensitivity; });
     const change = () => {
       const playing = document.pointerLockElement === gl.domElement;
       useStore.getState().setPlaying(playing);
@@ -26,6 +28,7 @@ export function FPVControls() {
     window.addEventListener('blur', pause);
     return () => {
       controls.dispose();
+      unsubscribe();
       document.removeEventListener('pointerlockchange', change);
       document.removeEventListener('pointerlockerror', error);
       document.removeEventListener('visibilitychange', hide);

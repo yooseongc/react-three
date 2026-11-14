@@ -48,3 +48,22 @@ dd { margin: 5px 0 0; font-size: 12px; color: #aabdaf; }
 .performance-panel small { color: #b5c7a4; font-size: 10px; }
 @media (max-width: 700px), (max-height: 650px) { .minimap { width: 138px; right: 12px; top: 64px; } }
 @media (max-height: 650px) { .menu { padding: 20px; } dl { margin: 12px 0; gap: 6px; } .status-bar { padding: 12px; } }
+.menu-tabs { display: flex; gap: 6px; margin: 18px 0; }
+.menu-tabs button { flex: 1; padding: 10px; border: 1px solid #d3e5a52b; border-radius: 8px; background: #ffffff08; color: #b8cbbb; }
+.menu-tabs button[aria-pressed=true] { background: #d3e5a5; color: #1c3227; }
+.menu-actions, .seed-row { display: flex; gap: 8px; }
+.world-manager label, .settings-panel label { display: block; margin: 14px 0 8px; color: #dbe7d4; font-size: 13px; }
+.world-manager input:not([type=file]), .world-manager select { min-width: 0; width: 100%; padding: 11px; background: #10231c; color: #edf3e7; border: 1px solid #9ab48670; border-radius: 8px; font: inherit; }
+.seed-row button { flex-shrink: 0; border: 0; border-radius: 8px; padding: 0 14px; background: #d3e5a5; color: #1c3227; }
+.file-label input { display: block; max-width: 100%; margin-top: 10px; font-size: 12px; }
+.settings-panel input[type=range] { width: 100%; display: block; margin-top: 12px; accent-color: #d3e5a5; }
+.settings-panel input[type=checkbox] { accent-color: #d3e5a5; margin-right: 8px; }
+.settings-panel output { float: right; }
+.menu hr { border: 0; border-top: 1px solid #ffffff20; margin: 20px 0 12px; }
+.menu details { margin: 18px 0; font-size: 13px; color: #c5d2c7; }
+.menu summary { cursor: pointer; padding: 8px 0; }
+.menu .primary { margin-top: 16px; }
+.menu .import-preview { border: 1px solid #d3e5a550; border-radius: 10px; padding: 8px 12px 12px; margin-top: 12px; }
+.status-bar div span { max-width: 55vw; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.menu { scrollbar-width: thin; scrollbar-color: #718b70 #192c25; }
+.hud.is-paused .hotbar, .hud.is-paused .controls-hint, .hud.is-paused .build-status, .hud.is-paused .performance-panel { display: none; }
