@@ -3,7 +3,9 @@ import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { Vector3, BoxGeometry, EdgesGeometry } from 'three';
 import { useKeyboardControls } from '../hooks/useKeyboardControls';
 import { useStore } from '../hooks/useStore';
-import { overlapsPlayer, spawnPosition, stepPlayer } from '../game/world';
+import { spawnPosition, stepPlayer } from '../game/world';
+import { placementPosition, placementError } from '../game/placement';
+import * as textures from '../textures';
 import { FPVControls } from './FPVControls';
 import { horizontalHeading, playerView } from '../game/navigation';
 import { raycastVoxels } from '../game/voxels';
@@ -15,6 +17,9 @@ export default function Player() {
   const input = useKeyboardControls();
   const player = useRef(spawnPosition(useStore.getState().cubes));
   const outline = useRef();
+  const ghost = useRef();
+  const ghostEdges = useRef();
+  const texture = useStore(state => state.texture);
   const forward = useMemo(() => new Vector3(), []);
   const heading = useRef(0);
   const wasFlying = useRef(false);
@@ -45,13 +50,8 @@ export default function Player() {
         }
         return;
       }
-      const pos = block
-        ? block.map((value, i) => value + hit.normal[i])
-        : [Math.round(hit.point[0]), 1, Math.round(hit.point[2])];
-      if (!overlapsPlayer(pos, player.current)) {
-        state.addCube(...pos);
-        if (useStore.getState().world !== state.world) blockFeedback(pos, state.texture, false, state.soundEnabled);
-      }
+      const pos = placementPosition(hit);
+      if (state.addCube(...pos, player.current)) blockFeedback(pos, state.texture, false, state.soundEnabled);
     };
     const context = event => event.preventDefault();
     gl.domElement.addEventListener('mousedown', click);
@@ -79,6 +79,17 @@ export default function Player() {
     camera.updateMatrixWorld();
     const hit = state.playing ? target() : null;
     const block = hit?.block;
+    const placement = placementPosition(hit);
+    const error = placementError(state.world, placement, p);
+    if (ghost.current && ghostEdges.current) {
+      ghost.current.visible = ghostEdges.current.visible = !!placement;
+      if (placement) {
+        ghost.current.position.set(...placement);
+        ghostEdges.current.position.set(...placement);
+        ghost.current.material.color.set(error ? '#ff6575' : '#9af7bd');
+        ghostEdges.current.material.color.set(error ? '#ff4055' : '#82ffc1');
+      }
+    }
     if (outline.current) {
       outline.current.visible = !!block;
       if (block) outline.current.position.set(...block);
@@ -90,6 +101,8 @@ export default function Player() {
     gl.domElement.dataset.heading = String(heading.current);
     gl.domElement.dataset.direction = [forward.x, forward.y, forward.z].join(',');
     gl.domElement.dataset.target = block ? block.join(',') : hit?.ground ? 'ground' : '';
+    gl.domElement.dataset.placement = placement?.join(',') || '';
+    gl.domElement.dataset.placementError = state.playing ? error : '';
     renderMetrics.drawCalls = gl.info.render.calls;
     renderMetrics.triangles = gl.info.render.triangles;
     gl.info.reset();
@@ -106,6 +119,13 @@ export default function Player() {
     <FPVControls />
     <lineSegments ref={outline} visible={false} geometry={edges}>
       <lineBasicMaterial color="#fff4b0" toneMapped={false} />
+    </lineSegments>
+    <mesh ref={ghost} visible={false} renderOrder={2}>
+      <boxGeometry args={[1.002, 1.002, 1.002]} />
+      <meshBasicMaterial map={textures[texture]} transparent opacity={0.35} depthWrite={false} toneMapped={false} />
+    </mesh>
+    <lineSegments ref={ghostEdges} visible={false} geometry={edges} renderOrder={3}>
+      <lineBasicMaterial transparent opacity={0.95} depthWrite={false} toneMapped={false} />
     </lineSegments>
   </>;
 }

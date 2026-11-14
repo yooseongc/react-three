@@ -7,6 +7,10 @@ import { createBenchmarkWorld, createDemoWorld, createBuildingDemo, demoMode, is
 import { slotId, slotData, slotError } from '../game/session';
 import { exportWorld, SLOT_PREFIX } from '../game/transfer';
 import { loadSettings, cleanSettings, SETTINGS_KEY } from '../game/settings';
+import { placementError } from '../game/placement';
+import { playerView } from '../game/navigation';
+
+export const HISTORY_LIMIT = 100;
 
 const storageKey = slotId ? SLOT_PREFIX + slotId : landscape ? 'voxel-garden.terrain.v1.' + encodeURIComponent(landscapeSeed)
   : demoMode === 'build' ? 'voxel-garden.m4-demo.v1' : isDemo ? 'voxel-garden.m2-demo.v1' : STORAGE_KEY;
@@ -54,24 +58,53 @@ export const useStore = create((set, get) => ({
   playing: false,
   ready: false,
   dirty: false,
+  undoStack: [],
+  redoStack: [],
+  historyNotice: '',
   saveStatus: '저장 대기',
   controlError: '',
   setPlaying: playing => set({ playing }),
   setReady: ready => set({ ready }),
   setControlError: controlError => set({ controlError }),
   setTexture: texture => { if (BLOCK_TYPES.includes(texture)) set({ texture, palettePage: Math.floor(BLOCK_TYPES.indexOf(texture) / 6) }); },
-  addCube: (x, y, z) => {
+  addCube: (x, y, z, player = null) => {
     const pos = [x, y, z];
-    const key = pos.join(',');
-    if (!validPosition(pos) || get().world.blocks.has(key)) return;
+    const error = placementError(get().world, pos, player);
+    if (error) { set({ historyNotice: error }); return false; }
     const world = editVoxel(get().world, pos, get().texture);
-    set({ world, cubes: [...world.blocks.values()], dirty: true });
+    const edit = { pos, before: null, after: get().texture };
+    set({ world, cubes: [...world.blocks.values()], dirty: true,
+      undoStack: [...get().undoStack, edit].slice(-HISTORY_LIMIT), redoStack: [], historyNotice: '' });
+    return true;
   },
   removeCube: (x, y, z) => {
     const key = [x, y, z].join(',');
     if (!get().world.blocks.has(key)) return;
+    const edit = { pos: [x, y, z], before: get().world.blocks.get(key).texture, after: null };
     const world = editVoxel(get().world, [x, y, z], null);
-    set({ world, cubes: [...world.blocks.values()], dirty: true });
+    set({ world, cubes: [...world.blocks.values()], dirty: true,
+      undoStack: [...get().undoStack, edit].slice(-HISTORY_LIMIT), redoStack: [], historyNotice: '' });
+    return true;
+  },
+  undoEdit: (player = playerView) => get().replayEdit(false, player),
+  redoEdit: (player = playerView) => get().replayEdit(true, player),
+  replayEdit: (redo, player) => {
+    const state = get(), source = redo ? state.redoStack : state.undoStack;
+    const edit = source.at(-1);
+    if (!edit) { set({ historyNotice: redo ? '다시 실행할 작업이 없습니다' : '취소할 작업이 없습니다' }); return false; }
+    const texture = redo ? edit.after : edit.before;
+    const expected = redo ? edit.before : edit.after;
+    if ((state.world.blocks.get(edit.pos.join(','))?.texture ?? null) !== expected) {
+      set({ historyNotice: '월드 상태가 변경되어 이 작업을 복원할 수 없습니다' }); return false;
+    }
+    const error = texture ? placementError(state.world, edit.pos, player) : '';
+    if (error) { set({ historyNotice: '복원 불가 · ' + error + ' — 이동한 뒤 다시 시도하세요' }); return false; }
+    const world = editVoxel(state.world, edit.pos, texture);
+    set({ world, cubes: [...world.blocks.values()], dirty: true,
+      undoStack: redo ? [...state.undoStack, edit].slice(-HISTORY_LIMIT) : source.slice(0, -1),
+      redoStack: redo ? source.slice(0, -1) : [...state.redoStack, edit].slice(-HISTORY_LIMIT),
+      historyNotice: redo ? '다시 실행했습니다' : '실행을 취소했습니다' });
+    return true;
   },
   saveWorld: () => {
     if (!get().canSave) { set({ saveStatus: '저장 불가 · 브라우저 저장소 확인' }); return false; }

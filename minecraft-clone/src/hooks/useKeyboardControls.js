@@ -9,6 +9,14 @@ export const useKeyboardControls = () => {
     const clear = () => { input.current = {}; };
     const down = event => {
       if (!useStore.getState().playing) return;
+      if ((event.ctrlKey || event.metaKey) && ['KeyZ', 'KeyY'].includes(event.code)) {
+        event.preventDefault();
+        if (!event.repeat) {
+          if (event.code === 'KeyY' || event.shiftKey) useStore.getState().redoEdit();
+          else useStore.getState().undoEdit();
+        }
+        return;
+      }
       if (keys[event.code] || event.code === 'Space') event.preventDefault();
       if (keys[event.code]) input.current[keys[event.code]] = true;
       if (event.code === 'Space' && !event.repeat) input.current.jump = true;

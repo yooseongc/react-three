@@ -12,6 +12,7 @@ import PerformancePanel from './PerformancePanel';
 import { landscape, landscapeSeed } from '../game/landscape';
 import WorldManager from './WorldManager';
 import Settings from './Settings';
+import PlacementHint from './PlacementHint';
 import { RECENT_KEY, safeWorldQuery } from '../game/transfer';
 
 const icons = [dirt, grass, glass, wood, log];
@@ -43,6 +44,8 @@ export default function Hud() {
     </header>
     {state.showMinimap && <Minimap />}
     <PerformancePanel />
+    {state.playing && <PlacementHint />}
+    {state.playing && <div className="history-hint" role="status">{state.historyNotice || `Ctrl+Z 취소 ${state.undoStack.length} · Ctrl+Y 다시 실행 ${state.redoStack.length}`}</div>}
     <div className="build-status">{state.flying ? '비행 중 · Space 상승 / C 하강' : '걷는 중 · F 비행 전환'} · {BLOCK_LABELS[BLOCK_TYPES.indexOf(state.texture)]}</div>
     {state.playing && <div className="crosshair" aria-hidden="true">+</div>}
     <div className="hotbar" aria-label="블록 선택">
@@ -69,7 +72,9 @@ export default function Hud() {
       <button className="save-button" onClick={()=>setTab('world')}>{landscape ? '다른 월드 / 파일 관리' : '숲 만들기 / 월드 이어하기'}</button>
       <details><summary>조작 안내</summary><dl><div><dt>W A S D</dt><dd>이동</dd></div><div><dt>SPACE</dt><dd>점프</dd></div>
         <div><dt>마우스 좌 / 우</dt><dd>파괴 / 설치</dd></div><div><dt>F · SPACE / C</dt><dd>비행 전환 · 상승 / 하강</dd></div>
-        <div><dt>Q / E · 1–6</dt><dd>재료 페이지 · 슬롯 선택</dd></div><div><dt>휠 · ESC</dt><dd>재료 순환 · 일시정지</dd></div></dl></details>
+        <div><dt>Q / E · 1–6</dt><dd>재료 페이지 · 슬롯 선택</dd></div><div><dt>휠 · ESC</dt><dd>재료 순환 · 일시정지</dd></div>
+        <div><dt>Ctrl/Cmd + Z</dt><dd>실행 취소</dd></div><div><dt>Ctrl/Cmd + Shift + Z · Ctrl + Y</dt><dd>다시 실행</dd></div></dl>
+        <p>초록 미리보기는 설치 가능, 빨강은 설치 불가입니다. 실행 기록은 현재 월드 세션의 최근 100개만 유지됩니다.</p></details>
       </>}
       {state.notice && <p className="notice" role="status">{state.notice}</p>}
       {state.controlError && <p className="notice" role="alert">{state.controlError}</p>}
@@ -77,6 +82,11 @@ export default function Hud() {
         {!state.ready ? '월드 준비 중…' : started ? '계속하기' : '산책 시작'}
       </button>
       <button className="save-button" onClick={state.saveWorld}>지금 저장</button>
+      <div className="menu-actions">
+        <button className="save-button" disabled={!state.undoStack.length} onClick={()=>state.undoEdit()}>실행 취소 ({state.undoStack.length})</button>
+        <button className="save-button" disabled={!state.redoStack.length} onClick={()=>state.redoEdit()}>다시 실행 ({state.redoStack.length})</button>
+      </div>
+      {state.historyNotice && <p className="notice" role="status">{state.historyNotice}</p>}
       <small>PC 키보드·마우스 전용 · 이 브라우저에 저장<br />중요한 건축물은 월드 메뉴에서 파일로 보관하세요.</small>
     </section></div>}
   </div>;

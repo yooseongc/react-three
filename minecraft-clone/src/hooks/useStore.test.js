@@ -4,7 +4,7 @@ import { createVoxelWorld } from '../game/voxels';
 
 beforeEach(() => {
   localStorage.clear();
-  useStore.setState({ cubes: [], world: createVoxelWorld([]), dirty: false, canSave: true, texture: 'wood' });
+  useStore.setState({ cubes: [], world: createVoxelWorld([]), dirty: false, canSave: true, texture: 'wood', undoStack: [], redoStack: [] });
 });
 
 test('duplicate positions are rejected and removing a missing block is a no-op', () => {
