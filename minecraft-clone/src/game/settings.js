@@ -1,5 +1,5 @@
 export const SETTINGS_KEY = 'voxel-garden.settings.v1';
-export const defaultSettings = { soundEnabled: true, sensitivity: 1, shadows: true, showMinimap: true, dayCycle: true, timeOfDay: 9, landscapeMotion: true };
+export const defaultSettings = { soundEnabled: true, sensitivity: 1, shadows: true, showMinimap: true, dayCycle: true, timeOfDay: 9, landscapeMotion: true, weatherMode: 'auto', ambienceEnabled: true, ambienceVolume: .45 };
 export function cleanSettings(value) {
   return { soundEnabled: typeof value?.soundEnabled === 'boolean' ? value.soundEnabled : true,
     sensitivity: Number.isFinite(value?.sensitivity) ? Math.min(2,Math.max(.25,value.sensitivity)) : 1,
@@ -7,6 +7,9 @@ export function cleanSettings(value) {
     showMinimap: typeof value?.showMinimap === 'boolean' ? value.showMinimap : true,
     dayCycle: typeof value?.dayCycle === 'boolean' ? value.dayCycle : true,
     landscapeMotion: typeof value?.landscapeMotion === 'boolean' ? value.landscapeMotion : true,
+    weatherMode: ['auto','clear','cloudy','rain','fog','snow'].includes(value?.weatherMode) ? value.weatherMode : 'auto',
+    ambienceEnabled: typeof value?.ambienceEnabled === 'boolean' ? value.ambienceEnabled : value?.weatherSound !== false,
+    ambienceVolume: Number.isFinite(value?.ambienceVolume) ? Math.min(1,Math.max(0,value.ambienceVolume)) : .45,
     timeOfDay: Number.isFinite(value?.timeOfDay) ? ((value.timeOfDay % 24) + 24) % 24 : 9 };
 }
 export function loadSettings(storage) {

@@ -5,6 +5,7 @@ import { ALL_BLOCK_TYPES } from '../game/world';
 import * as textures from '../textures';
 import Chunk from './Chunk';
 import { animateSurface } from '../game/motion';
+import { wetSurface } from '../game/weatherMaterials';
 
 // Stable accessor prevents memoized chunks from retaining obsolete whole-world Maps.
 const getBlocks = () => useStore.getState().world.blocks;
@@ -14,7 +15,8 @@ export default function Cubes() {
   const materials = useMemo(() => Object.fromEntries(ALL_BLOCK_TYPES.map(type => {
     const material = new MeshStandardMaterial({ map: textures[type], color: type === 'glass' ? '#d5f1ff' : 'white',
       transparent: type === 'glass', opacity: type === 'glass' ? 0.6 : 1, depthWrite: type !== 'glass' });
-    return [type, type === 'leaves' ? animateSurface(material, 'leaves') : material];
+    if(type === 'leaves')animateSurface(material,'leaves');
+    return [type, type === 'glass' ? material : wetSurface(material)];
   })), []);
   useEffect(() => () => Object.values(materials).forEach(material => material.dispose()), [materials]);
   return [...world.chunks.values()].map(chunk => <Chunk key={chunk.key} chunk={chunk} getBlocks={getBlocks} materials={materials} />);

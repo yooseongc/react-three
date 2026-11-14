@@ -26,7 +26,7 @@ export default function Hud() {
   }, [state.playing]);
   const start = async () => {
     state.setControlError('');
-    if (state.soundEnabled) unlockAudio();
+    if (state.soundEnabled || state.ambienceEnabled) unlockAudio();
     try {
       const canvas = document.querySelector('canvas');
       if (!canvas?.requestPointerLock) throw new Error('unsupported');

@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { Canvas } from '@react-three/fiber';
 import DayNight from './components/DayNight';
 import LandscapeMotion from './components/LandscapeMotion';
+import Weather from './components/Weather';
 import Ground from './components/Ground';
 import Player from './components/Player';
 import Cubes from './components/Cubes';
@@ -57,6 +58,7 @@ export default function App() {
         gl.info.autoReset = false;
       }}>
       <LandscapeMotion />
+      <Weather />
       <DayNight />
       <Ground />
       <Cubes />

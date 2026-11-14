@@ -1,4 +1,5 @@
 import { ShaderChunk } from 'three';
+import { weatherUniforms } from './weatherMaterials';
 
 // Shared uniforms animate existing batches; no per-frame geometry rebuilds.
 export const motionUniforms = { m8Time: { value: 0 }, m8Strength: { value: 1 } };
@@ -49,6 +50,7 @@ export function animateSurface(material, kind) {
 // One cloud field is shared by the sky and star mask, so stars do not shine through clouds.
 export const cloudShader = `
 uniform float m8Time; uniform float m8Strength;
+uniform float weatherCloud;
 float cloudHash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
 float cloudNoise(vec2 p){
   vec2 i=floor(p),f=fract(p); f=f*f*(3.-2.*f);
@@ -58,10 +60,12 @@ float cloudCover(vec3 direction){
   vec3 d=normalize(direction);
   vec2 p=d.xz/(max(d.y,0.)+.25)*3. + vec2(m8Time*m8Strength*.018,m8Time*m8Strength*.007);
   float n=cloudNoise(p)*.6+cloudNoise(p*2.03)*.27+cloudNoise(p*4.01)*.13;
-  return smoothstep(.48,.72,n)*smoothstep(.04,.3,d.y)*.85;
+  float clearCloud=smoothstep(.48,.72,n)*smoothstep(.04,.3,d.y)*.85;
+  return mix(clearCloud,.8+n*.2,weatherCloud);
 }`;
 export function maskCloudStars(shader) {
   Object.assign(shader.uniforms, motionUniforms);
+  Object.assign(shader.uniforms, weatherUniforms);
   shader.vertexShader = 'varying vec3 cloudDirection;\n' + shader.vertexShader;
   shader.vertexShader = shader.vertexShader.replace('#include <begin_vertex>', '#include <begin_vertex>\ncloudDirection=position;');
   shader.fragmentShader = 'varying vec3 cloudDirection;\n' + cloudShader + shader.fragmentShader;

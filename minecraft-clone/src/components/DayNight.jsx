@@ -4,6 +4,7 @@ import { BackSide, Color, Vector3 } from 'three';
 import { useStore } from '../hooks/useStore';
 import { advanceTime, sampleDay, worldClock } from '../game/daylight';
 import { cloudShader, maskCloudStars, motionUniforms } from '../game/motion';
+import { weatherUniforms } from '../game/weatherMaterials';
 
 // A camera-centred sky keeps the horizon continuous across dawn and midnight.
 const vertexShader = `varying vec3 direction;
@@ -18,7 +19,7 @@ void main(){
   float moonDisc = smoothstep(.99965,.9998,dot(d,-normalize(sun)));
   color = mix(color,vec3(1.0,.85,.55),sunDisc);
   color = mix(color,vec3(.8,.88,1.0),moonDisc * (1.0-daylight));
-  vec3 cloudColor = mix(horizon * .7, mix(horizon,vec3(.92,.96,1.),.65),daylight);
+  vec3 cloudColor = mix(horizon * .7, mix(horizon,vec3(.92,.96,1.),.65),daylight) * (1.-weatherCloud*.35);
   color = mix(color,cloudColor,cloudCover(d));
   gl_FragColor=vec4(color,1.0);
   #include <tonemapping_fragment>
@@ -31,9 +32,9 @@ export default function DayNight() {
   useEffect(() => { worldClock.hour = selectedHour; }, [selectedHour]);
   const colors = useMemo(() => ({ night: new Color('#101d38'), day: new Color('#72b9e5'),
     nightFog: new Color('#34465f'), dayFog: new Color('#c4d8cb'), dusk: new Color('#eea16d'), noon: new Color('#fff4dc'),
-    moon: new Color('#bbcdf5'), white: new Color('#ffffff') }), []);
+    moon: new Color('#bbcdf5'), white: new Color('#ffffff'), mistDay:new Color('#c9d4d4'), mistNight:new Color('#384452'), mistShade:new Color() }), []);
   const uniforms = useMemo(() => ({ zenith: { value: new Color() }, horizon: { value: new Color() },
-    sun: { value: new Vector3() }, daylight: { value: 1 }, ...motionUniforms }), []);
+    sun: { value: new Vector3() }, daylight: { value: 1 }, ...motionUniforms, ...weatherUniforms }), []);
   const starPositions = useMemo(() => {
     const positions = new Float32Array(600 * 3);
     let seed = 781;
@@ -53,26 +54,34 @@ export default function DayNight() {
     const liveUniforms = sky.current.material.uniforms;
     liveUniforms.m8Time.value = motionUniforms.m8Time.value;
     liveUniforms.m8Strength.value = motionUniforms.m8Strength.value;
+    const overcast=weatherUniforms.weatherCloud.value;
+    const fog=weatherUniforms.weatherFog.value, snow=weatherUniforms.weatherSnow.value;
+    liveUniforms.weatherCloud.value=overcast;
     liveUniforms.zenith.value.copy(colors.night).lerp(colors.day, sample.daylight);
     liveUniforms.horizon.value.copy(colors.nightFog).lerp(colors.dayFog, sample.daylight).lerp(colors.dusk, sample.twilight * .7);
+    colors.mistShade.copy(colors.mistNight).lerp(colors.mistDay,sample.daylight);
+    liveUniforms.zenith.value.lerp(colors.mistShade,fog*.8+snow*.15);
+    liveUniforms.horizon.value.lerp(colors.mistShade,Math.min(1,fog*.9+snow*.3));
     liveUniforms.sun.value.set(...sample.sun); liveUniforms.daylight.value = sample.daylight;
     sky.current.position.copy(camera.position); stars.current.position.copy(camera.position);
     stars.current.material.opacity = sample.stars * .85;
-    scene.fog.color.copy(liveUniforms.horizon.value);
+    scene.fog.color.copy(liveUniforms.horizon.value).multiplyScalar(1-overcast*.25);
     const mist = Math.sin(motionUniforms.m8Time.value * .05) * motionUniforms.m8Strength.value;
-    scene.fog.near = 45 + mist * 2;
-    scene.fog.far = 110 + mist * 3;
-    ambient.current.intensity = sample.ambient;
+    scene.fog.near = (45 + mist * 2 - overcast*15-snow*5)*(1-fog)+8*fog;
+    scene.fog.far = (110 + mist * 3 - overcast*30-snow*8)*(1-fog)+32*fog;
+    ambient.current.intensity = sample.ambient*(1-overcast*.2);
     ambient.current.color.copy(colors.moon).lerp(colors.white, sample.daylight);
-    light.current.intensity = 2.65 * Math.min(1, Math.max(0, sample.elevation / .3));
+    light.current.intensity = 2.65 * Math.min(1, Math.max(0, sample.elevation / .3))*(1-overcast*.85);
     light.current.color.copy(colors.noon).lerp(colors.dusk, sample.twilight);
     light.current.position.set(camera.position.x + sample.sun[0]*.4, camera.position.y + sample.sun[1]*.4, camera.position.z + sample.sun[2]*.4);
-    moon.current.intensity = sample.stars * .45;
+    moon.current.intensity = sample.stars * .45*(1-overcast*.7);
     moon.current.position.set(-sample.sun[0], -sample.sun[1], -sample.sun[2]);
     light.current.target.position.copy(camera.position);
     light.current.target.updateMatrixWorld();
     gl.domElement.dataset.timeOfDay = worldClock.hour.toFixed(4);
     gl.domElement.dataset.daylight = sample.daylight.toFixed(3);
+    gl.domElement.dataset.fogRange = `${scene.fog.near.toFixed(2)},${scene.fog.far.toFixed(2)}`;
+    gl.domElement.dataset.cameraAspect = camera.aspect.toFixed(5);
   });
   return <>
     <fog attach="fog" args={['#c4d8cb',45,110]} />

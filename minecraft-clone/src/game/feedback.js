@@ -1,5 +1,6 @@
 // Audio is created only after a user gesture; unsupported/blocked audio never stops play.
 let context;
+export function getAudioContext() { return context; }
 export const feedback = { burst: null, serial: 0 };
 export function unlockAudio() {
   try {
