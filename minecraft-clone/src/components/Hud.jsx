@@ -16,6 +16,7 @@ import WorldTime from './WorldTime';
 import PlacementHint from './PlacementHint';
 import SaveStatus from './SaveStatus';
 import TouchControls, { TouchButton } from './TouchControls';
+import { activeMap, MAP_TYPES } from '../game/mapConfig';
 import { RECENT_KEY, safeWorldQuery } from '../game/transfer';
 
 const icons = [dirt, grass, glass, wood, log];
@@ -45,7 +46,7 @@ export default function Hud() {
   return <div className={'hud' + (state.playing ? '' : ' is-paused') + (state.touchMode ? ' touch-mode' : '')}>
     {state.touchMode && state.playing && <TouchControls />}
     <header className="status-bar">
-      <div><strong>VOXEL GARDEN</strong><span>{landscape ? `물빛 숲 · ${landscapeSeed}` : '작은 건축 연습장'}</span></div>
+      <div><strong>VOXEL GARDEN</strong><span>{landscape ? `${MAP_TYPES[activeMap.mapType]} · ${landscapeSeed}` : '작은 건축 연습장'}</span></div>
       <SaveStatus dirty={state.dirty} canSave={state.canSave} saveStatus={state.saveStatus} saveRevision={state.saveRevision} />
     </header>
     {state.showMinimap && <Minimap />}
@@ -56,7 +57,7 @@ export default function Hud() {
     <div className="build-status">{state.flying ? '비행 중 · Space 상승 / C 하강' : '걷는 중 · F 비행 전환'} · {BLOCK_LABELS[BLOCK_TYPES.indexOf(state.texture)]}</div>
     {state.playing && <div className="crosshair" aria-hidden="true">+</div>}
     <div className="hotbar" aria-label="블록 선택">
-      <TouchButton className="palette-switch" aria-label="재료 페이지 전환" onClick={state.changePage}>{state.touchMode?'재료':'Q / E'}<br />{state.palettePage + 1} / 2</TouchButton>
+      <TouchButton className="palette-switch" aria-label="재료 페이지 전환" onClick={state.changePage}>{state.touchMode?'재료':'Q / E'}<br />{state.palettePage + 1} / {Math.ceil(BLOCK_TYPES.length/6)}</TouchButton>
       {BLOCK_TYPES.slice(state.palettePage * 6, state.palettePage * 6 + 6).map((type, slot) => {
         const i = state.palettePage * 6 + slot;
         return <TouchButton key={type} aria-label={BLOCK_LABELS[i]}
@@ -74,7 +75,7 @@ export default function Hud() {
       {tab === 'world' && <WorldManager />}
       {tab === 'settings' && <Settings />}
       {tab === 'play' && <>
-      <p>{landscape ? `북서쪽 호수와 언덕, 동쪽 모래 해변을 찾아 걸어보세요. 단차는 ${state.touchMode?'점프 버튼':'Space'}으로 넘을 수 있습니다.` : '잔디 위를 걷고, 블록을 쌓아보세요.'}<br />
+      <p>{landscape ? `${MAP_TYPES[activeMap.mapType]}에서 나만의 장소를 찾아보세요. 단차는 ${state.touchMode?'점프 버튼':'Space'}으로 넘을 수 있습니다.` : '잔디 위를 걷고, 블록을 쌓아보세요.'}<br />
         {landscape ? '물은 걸어서 건널 수 있는 얕은 수면입니다. 나무와 지형도 편집할 수 있습니다.' : '새로운 숲과 호수로 탐험을 떠나보세요.'}</p>
       <button className="save-button" onClick={()=>setTab('world')}>{landscape ? '다른 월드 / 파일 관리' : '숲 만들기 / 월드 이어하기'}</button>
       <details><summary>조작 안내</summary>{state.touchMode ? <p>왼쪽 스틱: 이동 · 오른쪽 화면 드래그: 둘러보기<br />점프/상승·하강: 누르고 있는 동안 조작<br />설치·파괴·집기: 중앙 조준점의 블록에 적용<br />비행: 걷기/비행 전환 · 취소/재실행: 건축 이력<br />아래 재료 선택 · 메뉴: 일시정지<br />화면 회전이나 다른 앱으로 이동하면 일시정지합니다.</p> : <dl><div><dt>W A S D</dt><dd>이동</dd></div><div><dt>SPACE</dt><dd>점프</dd></div>

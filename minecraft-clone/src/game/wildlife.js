@@ -1,4 +1,5 @@
 import { hashSeed, randomAt, WATER_LEVEL } from './terrain';
+import { mapConfig, mapLimit } from './mapConfig';
 
 export const WILDLIFE_SPECIES={
   rabbit:{count:8,speed:.75,radius:.27},
@@ -13,15 +14,16 @@ function random(animal){animal.random=(Math.imul(animal.random,1664525)+10139042
 
 export function wildlifeHabitat(terrain) {
   if(!terrain)return null;
+  const limit=mapLimit(mapConfig(terrain));
   const salt=hashSeed(terrain.seed), water=new Set(terrain.water.map(([x,,z])=>`${x},${z}`));
   const grass=[...terrain.heights].map(([key,y])=>{const [x,z]=key.split(',').map(Number);return {x,y:y+.5,z};})
-    .filter(p=>p.y>WATER_LEVEL && Math.abs(p.x)<45 && Math.abs(p.z)<45);
+    .filter(p=>p.y>WATER_LEVEL && Math.abs(p.x)<limit-4 && Math.abs(p.z)<limit-4);
   const waterCells=terrain.water.map(([x,,z])=>({x,y:WATER_LEVEL,z}));
   // A few animals are discoverable near the starting trail; remaining homes vary with seed.
   const nearby=[...grass].sort((a,b)=>Math.hypot(a.x,a.z-10)-Math.hypot(b.x,b.z-10));
   grass.sort((a,b)=>randomAt(salt,a.x,a.z)-randomAt(salt,b.x,b.z));
   waterCells.sort((a,b)=>randomAt(salt+7,a.x,a.z)-randomAt(salt+7,b.x,b.z));
-  return {heights:terrain.heights,water,grass,nearby,waterCells,pond:waterCells.filter(p=>p.x<0),salt};
+  return {heights:terrain.heights,water,grass,nearby,waterCells,pond:waterCells.filter(p=>p.x<0),salt,limit};
 }
 
 export function animalSurface(type,x,z,habitat,blocks) {
@@ -29,14 +31,14 @@ export function animalSurface(type,x,z,habitat,blocks) {
   let surface=null;
   for(const dx of [-radius,radius])for(const dz of [-radius,radius]){
     const cx=Math.round(x+dx),cz=Math.round(z+dz);
-    if(Math.abs(cx)>48 || Math.abs(cz)>48)return null;
+    if(Math.abs(cx)>habitat.limit-1 || Math.abs(cz)>habitat.limit-1)return null;
     const key=`${cx},${cz}`;
     if(type==='duck'){
       if(!habitat.water.has(key) || blocks.has(`${cx},3,${cz}`) || blocks.has(`${cx},4,${cz}`))return null;
       surface=WATER_LEVEL;
     }else{
       const ground=habitat.heights.get(key);
-      if(ground===undefined || blocks.get(`${cx},${ground},${cz}`)?.texture!=='grass')return null;
+      if(ground===undefined || !['grass','snow'].includes(blocks.get(`${cx},${ground},${cz}`)?.texture))return null;
       if(blocks.has(`${cx},${ground+1},${cz}`) || blocks.has(`${cx},${ground+2},${cz}`))return null;
       if(surface!==null && surface!==ground+.5)return null;
       surface=ground+.5;

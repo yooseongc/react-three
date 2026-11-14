@@ -1,3 +1,4 @@
+import { mapConfig, mapLimit } from './mapConfig.js';
 export const TERRAIN_VERSION = 1;
 export const WATER_LEVEL = 2.8;
 export function hashSeed(text) {
@@ -10,7 +11,8 @@ export function randomAt(seed, x, z) {
   h = Math.imul(h ^ (h >>> 13), 1274126177);
   return ((h ^ (h >>> 16)) >>> 0) / 4294967296;
 }
-export function generateTerrain(seed = 'willow') {
+export function generateTerrain(seed = 'willow', options = {}) {
+  const config=mapConfig(options),limit=mapLimit(config),kind=config.mapType;
   const salt = hashSeed(seed), cubes = [], heights = new Map(), water = [], flowers = [], occupied = new Set();
   const phase = (salt % 1000) / 157;
   const add = (x,y,z,texture) => {
@@ -18,24 +20,28 @@ export function generateTerrain(seed = 'willow') {
     if(occupied.has(key))return;
     occupied.add(key);cubes.push({key,pos:[x,y,z],texture});
   };
-  for (let x=-49;x<=49;x++) for(let z=-49;z<=49;z++) {
+  for (let x=-limit;x<=limit;x++) for(let z=-limit;z<=limit;z++) {
     const coast = 30 + 3 * Math.sin(z / 12 + phase);
     const lake = Math.hypot((x+18)/1.15,z+13);
     let height = Math.round(5 + 2*Math.sin(x/15+phase)*Math.sin(z/17) + 3*Math.exp(-((x+27)**2+(z+34)**2)/260));
     if (x>coast-7) height = Math.min(height, Math.max(1, Math.round((coast-x)/3+2)));
     if (lake<12) height = Math.min(height, Math.max(1,Math.round((lake-6)/2+1)));
+    if(kind==='meadow')height=Math.round(4.5+Math.sin(x/24+phase)*Math.sin(z/27));
+    if(kind==='islands')height=Math.max(1,Math.round(1+5*Math.max(0,Math.sin(x/12+phase)*Math.cos(z/14))));
+    if(kind==='snow')height=Math.round(6+3*Math.sin(x/21+phase)*Math.sin(z/23)+2*Math.cos((x+z)/30));
     // A broad clearing and two level trails connect the starting point to the biomes.
     const path = Math.min(Math.abs(x),Math.abs(z-10));
-    if(path<5 && x<28) height = Math.round(height+(5-height)*Math.max(0,1-path/5));
+    if(kind!=='islands' && path<5 && x<28) height = Math.round(height+(5-height)*Math.max(0,1-path/5));
+    if(kind==='islands' && Math.hypot(x,z-10)<7)height=Math.max(height,Math.round(5-Math.hypot(x,z-10)/3));
     heights.set(`${x},${z}`,height);
-    for(let y=1;y<=height;y++) add(x,y,z,y===height?(height<=3?'sand':'grass'):y<height-2?'stone':'dirt');
+    for(let y=1;y<=height;y++) add(x,y,z,y===height?(kind==='snow'?'snow':height<=3?'sand':'grass'):y<height-2?'stone':'dirt');
     if(height+.5<WATER_LEVEL) water.push([x,WATER_LEVEL,z]);
-    if(height>=4 && path>3 && randomAt(salt,x,z)>.975) flowers.push([x,height+.75,z]);
+    if(kind!=='snow' && height>=4 && path>3 && randomAt(salt,x,z)>.975) flowers.push([x,height+.75,z]);
   }
   // Trees are editable voxels, with empty trails and a clear spawn radius.
-  for(let x=-44;x<25;x+=5) for(let z=-44;z<45;z+=5){
+  for(let x=-(limit-5);x<(kind==='forest'?25:limit-4);x+=5) for(let z=-(limit-5);z<limit-4;z+=5){
     const h=heights.get(`${x},${z}`);
-    if(h<4 || Math.abs(x)<5 || Math.abs(z-10)<5 || randomAt(salt,x,z)<.42) continue;
+    if(h<4 || Math.abs(x)<5 || Math.abs(z-10)<5 || randomAt(salt,x,z)<(kind==='meadow'?.94:kind==='islands'?.68:.42)) continue;
     const trunk=3+Math.floor(randomAt(salt+1,x,z)*2);
     for(let y=1;y<=trunk;y++)add(x,h+y,z,'log');
     for(let dx=-2;dx<=2;dx++)for(let dz=-2;dz<=2;dz++)for(let dy=0;dy<=2;dy++){
@@ -43,19 +49,21 @@ export function generateTerrain(seed = 'willow') {
       add(x+dx,h+trunk+dy,z+dz,'leaves');
     }
   }
-  return {seed:String(seed),cubes,heights,water,flowers};
+  return {seed:String(seed),...config,cubes,heights,water,flowers};
 }
 
 // Saves contain only edits relative to this version of the deterministic generator.
-export function serializeTerrain(seed, base, current) {
+export function serializeTerrain(seed, base, current, options={}) {
   const edits=[];
   for(const [key,cube] of base)if(!current.has(key))edits.push({pos:cube.pos,texture:null});
   for(const [key,cube] of current)if(base.get(key)?.texture!==cube.texture)edits.push({pos:cube.pos,texture:cube.texture});
-  return JSON.stringify({version:2,generator:TERRAIN_VERSION,seed,edits});
+  return JSON.stringify({version:2,generator:TERRAIN_VERSION,seed,...mapConfig(options),edits});
 }
-export function restoreTerrain(raw, seed, cubes, validPosition, types) {
+export function restoreTerrain(raw, seed, cubes, validPosition, types, options={}) {
   const data=JSON.parse(raw);
   if(data.version!==2||data.generator!==TERRAIN_VERSION||data.seed!==seed||!Array.isArray(data.edits))throw Error('Unsupported landscape save');
+  const config=mapConfig(options),saved=mapConfig(data);
+  if((data.mapType!==undefined && data.mapType!==saved.mapType)||(data.size!==undefined && data.size!==saved.size)||config.mapType!==saved.mapType||config.size!==saved.size)throw Error('Landscape configuration mismatch');
   const blocks=new Map(cubes.map(c=>[c.key,c]));
   for(const edit of data.edits){
     if(!edit||!validPosition(edit.pos)||(edit.texture!==null&&!types.includes(edit.texture)))throw Error('Invalid landscape edit');

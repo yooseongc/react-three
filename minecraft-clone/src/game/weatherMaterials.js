@@ -1,6 +1,8 @@
 import { DataTexture, FloatType, RedFormat } from 'three';
+import { MAP_LIMIT } from './mapConfig';
 
-const roofTexture = new DataTexture(new Float32Array(99*99).fill(.5),99,99,RedFormat,FloatType);
+const width=MAP_LIMIT*2+1;
+const roofTexture = new DataTexture(new Float32Array(width*width).fill(.5),width,width,RedFormat,FloatType);
 roofTexture.needsUpdate = true;
 export const weatherUniforms = { weatherCloud: {value:0}, weatherWet: {value:0}, weatherFog: {value:0}, weatherSnow: {value:0}, weatherRoof: {value:roofTexture} };
 export function wetSurface(material) {
@@ -19,7 +21,7 @@ export function wetSurface(material) {
     shader.fragmentShader = varying + 'uniform float weatherWet; uniform sampler2D weatherRoof;\n' + shader.fragmentShader;
     shader.fragmentShader = shader.fragmentShader.replace('#include <color_fragment>', `
       #include <color_fragment>
-      vec2 roofUv=(floor(weatherPosition.xz+.5)+49.5)/99.;
+      vec2 roofUv=(floor(weatherPosition.xz+.5)+${MAP_LIMIT+.5})/${width}.;
       float roofHeight=texture2D(weatherRoof,roofUv).r;
       float wetMask=weatherWet*step(.5,weatherNormal.y)*step(roofHeight-.08,weatherPosition.y);
       diffuseColor.rgb *= 1.-wetMask*.2;`);

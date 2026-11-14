@@ -14,6 +14,7 @@
     "preview": "vite preview",
     "test": "vitest",
     "test:ci": "vitest run",
+    "benchmark:maps": "node scripts/benchmark-maps.mjs",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d build"
   },

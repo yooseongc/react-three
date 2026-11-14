@@ -13,6 +13,8 @@ import { horizontalHeading, playerView } from '../game/navigation';
 import { raycastVoxels } from '../game/voxels';
 import { renderMetrics } from '../game/metrics';
 import { blockFeedback } from '../game/feedback';
+import { activeMap } from '../game/mapConfig';
+import { generationMs } from '../game/landscape';
 
 export default function Player() {
   const { camera, gl } = useThree();
@@ -154,6 +156,9 @@ export default function Player() {
     gl.domElement.dataset.meshBuilds = String(renderMetrics.builds.length);
     gl.domElement.dataset.lastChunks = state.world.lastChanged.join(';');
     gl.domElement.dataset.geometries = String(gl.info.memory.geometries);
+    gl.domElement.dataset.mapType=activeMap.mapType;
+    gl.domElement.dataset.mapSize=String(activeMap.size);
+    gl.domElement.dataset.generationMs=generationMs.toFixed(1);
   });
 
   return <>

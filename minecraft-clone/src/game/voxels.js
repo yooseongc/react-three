@@ -1,3 +1,4 @@
+import { activeMap } from './mapConfig';
 export const CHUNK_SIZE = 16;
 export const voxelKey = (x, y, z) => [x, y, z].join(',');
 export const chunkCoords = pos => pos.map(value => Math.floor(value / CHUNK_SIZE));
@@ -88,7 +89,7 @@ export function raycastVoxels(world, origin, direction, reach = 6) {
     if (groundDistance >= 0 && groundDistance <= reach && (!hit || groundDistance < hit.distance)) {
       const x = origin.x + direction.x * groundDistance;
       const z = origin.z + direction.z * groundDistance;
-      if (Math.abs(x) <= 50 && Math.abs(z) <= 50) return { ground: true, point: [x, 0.5, z], distance: groundDistance };
+      if (Math.abs(x) <= activeMap.size/2 && Math.abs(z) <= activeMap.size/2) return { ground: true, point: [x, 0.5, z], distance: groundDistance };
     }
   }
   return hit;

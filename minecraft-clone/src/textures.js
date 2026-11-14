@@ -5,6 +5,7 @@ import glassImg from './images/glass.png';
 import logImg from './images/log.jpg';
 import woodImg from './images/wood.png';
 import { TextureLoader, RepeatWrapping, NearestFilter, SRGBColorSpace, DataTexture, RGBAFormat } from 'three';
+import { activeMap } from './game/mapConfig';
 
 export const dirt = new TextureLoader().load(dirtImg);
 export const grass = new TextureLoader().load(grassImg);
@@ -35,11 +36,12 @@ export const brick = naturalTexture([179, 107, 82], 'brick');
 export const plaster = naturalTexture([231, 223, 200]);
 export const roof = naturalTexture([105, 126, 134], 'roof');
 export const slate = naturalTexture([158, 170, 166], 'slate');
+export const snow = naturalTexture([229,239,241]);
 
 // Keep ground repetition separate from grass block UVs.
 export const ground = new TextureLoader().load(grassImg);
 ground.wrapS = ground.wrapT = RepeatWrapping;
-ground.repeat.set(100, 100);
+ground.repeat.set(activeMap.size, activeMap.size);
 [dirt, grass, glass, log, wood, ground].forEach(texture => {
     texture.magFilter = NearestFilter;
     // Shared materials are constructed outside R3F's JSX color conversion path.

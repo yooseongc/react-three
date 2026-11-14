@@ -9,10 +9,11 @@ import { exportWorld, SLOT_PREFIX } from '../game/transfer';
 import { loadSettings, cleanSettings, SETTINGS_KEY } from '../game/settings';
 import { placementError } from '../game/placement';
 import { playerView } from '../game/navigation';
+import { activeMap, terrainKey } from '../game/mapConfig';
 
 export const HISTORY_LIMIT = 100;
 
-const storageKey = slotId ? SLOT_PREFIX + slotId : landscape ? 'voxel-garden.terrain.v1.' + encodeURIComponent(landscapeSeed)
+const storageKey = slotId ? SLOT_PREFIX + slotId : landscape ? terrainKey(landscapeSeed,activeMap)
   : demoMode === 'build' ? 'voxel-garden.m4-demo.v1' : isDemo ? 'voxel-garden.m2-demo.v1' : STORAGE_KEY;
 const terrainBase = landscape ? new Map(landscape.cubes.map(c => [c.key, c])) : null;
 const load = storage => loadWorld(storage, storageKey, isDemo ? null : 'world',
@@ -28,7 +29,7 @@ if (landscape && !slotId) {
   try {
     const raw = localStorage.getItem(storageKey);
     if (raw !== null) {
-      try { initial.cubes = restoreTerrain(raw, landscapeSeed, landscape.cubes, validPosition, ALL_BLOCK_TYPES); }
+      try { initial.cubes = restoreTerrain(raw, landscapeSeed, landscape.cubes, validPosition, ALL_BLOCK_TYPES,activeMap); }
       catch { localStorage.setItem(storageKey + '.backup', raw); initial.notice = '저장을 읽을 수 없어 시드 지형을 복원했습니다. 원본은 보존했습니다.'; }
     }
   } catch { initial.canSave = false; initial.notice = '저장소에 접근하지 못했습니다. 이번 탐험은 저장되지 않습니다.'; }
@@ -54,7 +55,7 @@ export const useStore = create((set, get) => ({
   },
   toggleFlight: () => set(state => ({ flying: !state.flying })),
   toggleSound: () => get().updateSettings({ soundEnabled: !get().soundEnabled }),
-  changePage: () => set(state => ({ palettePage: 1 - state.palettePage })),
+  changePage: () => set(state => ({ palettePage: (state.palettePage+1)%Math.ceil(BLOCK_TYPES.length/6) })),
   playing: false,
   touchMode: window.matchMedia?.('(pointer: coarse)').matches || false,
   setTouchMode: touchMode => { if(document.pointerLockElement)document.exitPointerLock();set({touchMode,playing:false}); },
@@ -112,8 +113,8 @@ export const useStore = create((set, get) => ({
   saveWorld: () => {
     if (!get().canSave) { set({ saveStatus: '저장 불가 · 브라우저 저장소 확인' }); return false; }
     try {
-      localStorage.setItem(storageKey, slotId ? JSON.stringify(exportWorld(get().cubes, landscapeSeed)) : landscape
-        ? serializeTerrain(landscapeSeed, terrainBase, get().world.blocks)
+      localStorage.setItem(storageKey, slotId ? JSON.stringify(landscape ? {...JSON.parse(serializeTerrain(landscapeSeed,terrainBase,get().world.blocks,activeMap)),format:'voxel-garden',kind:'terrain'} : exportWorld(get().cubes)) : landscape
+        ? serializeTerrain(landscapeSeed, terrainBase, get().world.blocks,activeMap)
         : JSON.stringify({ version: 1, cubes: get().cubes }));
       set({ dirty: false, saveStatus: '저장 완료', saveRevision: get().saveRevision + 1 });
       return true;

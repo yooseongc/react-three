@@ -2,12 +2,13 @@ import { useEffect, useRef } from 'react';
 import { useStore } from '../hooks/useStore';
 import { playerView } from '../game/navigation';
 import { landscape } from '../game/landscape';
+import { activeMap } from '../game/mapConfig';
 
 const SIZE = 192;
 const PAD = 14;
-const SCALE = (SIZE - PAD * 2) / 100;
+const SCALE = (SIZE - PAD * 2) / activeMap.size;
 const project = value => SIZE / 2 + value * SCALE;
-const colors = { dirt: '#ba8a60', grass: '#a0bd65', glass: '#b3e4e9', wood: '#e0bf84', log: '#947252', sand: '#d8c591', stone: '#848f91', leaves: '#426d43', brick: '#b36b52', plaster: '#e7dfc8', roof: '#697e86', slate: '#9eaaa6' };
+const colors = { dirt: '#ba8a60', grass: '#a0bd65', glass: '#b3e4e9', wood: '#e0bf84', log: '#947252', sand: '#d8c591', stone: '#848f91', leaves: '#426d43', brick: '#b36b52', plaster: '#e7dfc8', roof: '#697e86', slate: '#9eaaa6', snow:'#e5eff1' };
 
 export default function Minimap() {
   const canvas = useRef();
@@ -26,13 +27,15 @@ export default function Minimap() {
     map.fillRect(PAD, PAD, SIZE - 2 * PAD, SIZE - 2 * PAD);
     map.strokeStyle = '#e4edc51c';
     map.lineWidth = 1;
-    for (let i = -40; i <= 40; i += 10) {
+    for (let i = -activeMap.size/2+10; i < activeMap.size/2; i += 10) {
       map.beginPath();
       map.moveTo(project(i), PAD); map.lineTo(project(i), SIZE - PAD);
       map.moveTo(PAD, project(i)); map.lineTo(SIZE - PAD, project(i));
       map.stroke();
     }
-    [...cubes].sort((a, b) => a.pos[1] - b.pos[1]).forEach(({ pos, texture }) => {
+    const top=new Map();
+    for(const cube of cubes){const key=cube.pos[0]+','+cube.pos[2];if(!top.has(key)||top.get(key).pos[1]<cube.pos[1])top.set(key,cube);}
+    [...top.values()].forEach(({ pos, texture }) => {
       map.fillStyle = colors[texture];
       map.fillRect(project(pos[0] - 0.5), project(pos[2] - 0.5), SCALE, SCALE);
     });
@@ -69,6 +72,6 @@ export default function Minimap() {
     <div className="minimap-title">주변 지도 <span>N ↑</span></div>
     <canvas ref={canvas} width={SIZE} height={SIZE} role="img" aria-label="블록 배치와 현재 위치 및 시선 방향" />
     <div ref={coordinates} className="minimap-coordinates" title="X·Z는 수평 위치, Y는 플레이어 발밑 높이입니다" />
-    <small>▲ 나 · □ 시작점 · 100 × 100</small>
+    <small>▲ 나 · □ 시작점 · {activeMap.size} × {activeMap.size}</small>
   </aside>;
 }
