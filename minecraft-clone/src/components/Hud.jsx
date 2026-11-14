@@ -73,7 +73,7 @@ export default function Hud() {
         {landscape ? '물은 걸어서 건널 수 있는 얕은 수면입니다. 나무와 지형도 편집할 수 있습니다.' : '새로운 숲과 호수로 탐험을 떠나보세요.'}</p>
       <button className="save-button" onClick={()=>setTab('world')}>{landscape ? '다른 월드 / 파일 관리' : '숲 만들기 / 월드 이어하기'}</button>
       <details><summary>조작 안내</summary><dl><div><dt>W A S D</dt><dd>이동</dd></div><div><dt>SPACE</dt><dd>점프</dd></div>
-        <div><dt>마우스 좌 / 우</dt><dd>파괴 / 설치</dd></div><div><dt>F · SPACE / C</dt><dd>비행 전환 · 상승 / 하강</dd></div>
+        <div><dt>마우스 좌 / 우 / 가운데</dt><dd>파괴 / 설치 / 재료 집기</dd></div><div><dt>F · SPACE / C</dt><dd>비행 전환 · 상승 / 하강</dd></div>
         <div><dt>Q / E · 1–6</dt><dd>재료 페이지 · 슬롯 선택</dd></div><div><dt>휠 · ESC</dt><dd>재료 순환 · 일시정지</dd></div>
         <div><dt>Ctrl/Cmd + Z</dt><dd>실행 취소</dd></div><div><dt>Ctrl/Cmd + Shift + Z · Ctrl + Y</dt><dd>다시 실행</dd></div></dl>
         <p>초록 미리보기는 설치 가능, 빨강은 설치 불가입니다. 실행 기록은 현재 월드 세션의 최근 100개만 유지됩니다.</p></details>

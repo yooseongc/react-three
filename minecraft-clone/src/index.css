@@ -69,7 +69,9 @@ dd { margin: 5px 0 0; font-size: 12px; color: #aabdaf; }
 .menu { scrollbar-width: thin; scrollbar-color: #718b70 #192c25; }
 .hud.is-paused .hotbar, .hud.is-paused .controls-hint, .hud.is-paused .build-status, .hud.is-paused .performance-panel { display: none; }
 .placement-hint { position: absolute; top: calc(50% + 30px); width: 100%; text-align: center; font-size: 12px; color: #b8ffcf; text-shadow: 0 1px 4px #000; }
-.placement-hint[data-invalid=true] { color: #ff9ca7; }
+.placement-hint[data-invalid=true] { color: #ffb4bc; }
+.placement-hint { width: max-content; max-width: calc(100% - 24px); left: 50%; transform: translateX(-50%); padding: 5px 9px; border-radius: 5px; background: #12241de6; }
+.placement-hint:empty { display: none; }
 .history-hint { position: absolute; bottom: 158px; width: 100%; text-align: center; font-size: 12px; color: #edf3e7; text-shadow: 0 1px 4px #000; }
 .save-button:disabled { opacity: .4; cursor: default; }
 .time-presets { display: flex; gap: 6px; }

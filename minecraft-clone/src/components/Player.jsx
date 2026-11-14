@@ -1,6 +1,7 @@
 import { useFrame, useThree } from '@react-three/fiber';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { Vector3, BoxGeometry, EdgesGeometry } from 'three';
+import { Line } from '@react-three/drei';
 import { useKeyboardControls } from '../hooks/useKeyboardControls';
 import { useStore } from '../hooks/useStore';
 import { spawnPosition, stepPlayer } from '../game/world';
@@ -19,6 +20,11 @@ export default function Player() {
   const outline = useRef();
   const ghost = useRef();
   const ghostEdges = useRef();
+  const ghostBorder = useRef();
+  const face = useRef();
+  const invalidMark = useRef();
+  const normalVector = useMemo(() => new Vector3(), []);
+  const planeNormal = useMemo(() => new Vector3(0,0,1), []);
   const texture = useStore(state => state.texture);
   const forward = useMemo(() => new Vector3(), []);
   const heading = useRef(0);
@@ -28,6 +34,10 @@ export default function Player() {
     const geometry = new EdgesGeometry(box); box.dispose(); return geometry;
   }, []);
   useEffect(() => () => edges.dispose(), [edges]);
+  const edgePoints = useMemo(() => {
+    const a = edges.attributes.position.array;
+    return Array.from({length:a.length/3},(_,i)=>[a[i*3],a[i*3+1],a[i*3+2]]);
+  }, [edges]);
   const target = useCallback(() => {
     camera.getWorldDirection(forward);
     return raycastVoxels(useStore.getState().world, camera.position, forward);
@@ -36,12 +46,16 @@ export default function Player() {
   useEffect(() => {
     const click = event => {
       if (!useStore.getState().playing || document.pointerLockElement !== gl.domElement) return;
-      if (event.button !== 0 && event.button !== 2) return;
+      if (![0,1,2].includes(event.button)) return;
       event.preventDefault();
       const hit = target();
       if (!hit) return;
       const state = useStore.getState();
       const block = hit.block;
+      if (event.button === 1) {
+        if (block) state.setTexture(state.world.blocks.get(block.join(',')).texture);
+        return;
+      }
       if (event.button === 0) {
         if (block) {
           const texture = state.world.blocks.get(block.join(',')).texture;
@@ -83,9 +97,13 @@ export default function Player() {
     const error = placementError(state.world, placement, p);
     if (ghost.current && ghostEdges.current) {
       ghost.current.visible = ghostEdges.current.visible = !!placement;
+      ghostBorder.current.visible = !!placement;
+      invalidMark.current.visible = !!placement && !!error;
       if (placement) {
         ghost.current.position.set(...placement);
         ghostEdges.current.position.set(...placement);
+        ghostBorder.current.position.set(...placement);
+        invalidMark.current.position.set(...placement);
         ghost.current.material.color.set(error ? '#ff6575' : '#9af7bd');
         ghostEdges.current.material.color.set(error ? '#ff4055' : '#82ffc1');
       }
@@ -93,6 +111,13 @@ export default function Player() {
     if (outline.current) {
       outline.current.visible = !!block;
       if (block) outline.current.position.set(...block);
+    }
+    face.current.visible = !!placement;
+    if (placement) {
+      normalVector.set(...(hit.normal || [0,1,0]));
+      const base = block || [placement[0],0,placement[2]];
+      face.current.position.set(...base).addScaledVector(normalVector,.506);
+      face.current.quaternion.setFromUnitVectors(planeNormal,normalVector);
     }
     // Read-only telemetry supports repeatable browser QA without changing gameplay.
     gl.domElement.dataset.position = [p.x, p.y, p.z].map(n => n.toFixed(3)).join(',');
@@ -103,6 +128,8 @@ export default function Player() {
     gl.domElement.dataset.target = block ? block.join(',') : hit?.ground ? 'ground' : '';
     gl.domElement.dataset.placement = placement?.join(',') || '';
     gl.domElement.dataset.placementError = state.playing ? error : '';
+    gl.domElement.dataset.selectedMaterial = state.texture;
+    gl.domElement.dataset.targetNormal = hit?.normal?.join(',') || (hit?.ground ? '0,1,0' : '');
     renderMetrics.drawCalls = gl.info.render.calls;
     renderMetrics.triangles = gl.info.render.triangles;
     gl.info.reset();
@@ -117,15 +144,22 @@ export default function Player() {
 
   return <>
     <FPVControls />
-    <lineSegments ref={outline} visible={false} geometry={edges}>
-      <lineBasicMaterial color="#fff4b0" toneMapped={false} />
-    </lineSegments>
+    <group ref={outline} visible={false}>
+      <Line points={edgePoints} segments transparent color="#14251f" lineWidth={5} fog={false} toneMapped={false} />
+      <Line points={edgePoints} segments transparent color="#ffe5a0" lineWidth={2} fog={false} toneMapped={false} renderOrder={1} />
+    </group>
+    <mesh ref={face} visible={false} renderOrder={1}>
+      <planeGeometry args={[.94,.94]} />
+      <meshBasicMaterial color="#ffe5a0" transparent opacity={.24} depthWrite={false} fog={false} toneMapped={false} />
+    </mesh>
     <mesh ref={ghost} visible={false} renderOrder={2}>
       <boxGeometry args={[1.002, 1.002, 1.002]} />
-      <meshBasicMaterial map={textures[texture]} transparent opacity={0.35} depthWrite={false} toneMapped={false} />
+      <meshBasicMaterial map={textures[texture]} transparent opacity={0.22} depthWrite={false} fog={false} toneMapped={false} />
     </mesh>
-    <lineSegments ref={ghostEdges} visible={false} geometry={edges} renderOrder={3}>
-      <lineBasicMaterial transparent opacity={0.95} depthWrite={false} toneMapped={false} />
-    </lineSegments>
+    <Line ref={ghostBorder} points={edgePoints} segments transparent color="#14251f" lineWidth={5} depthWrite={false} fog={false} toneMapped={false} renderOrder={3} />
+    <Line ref={ghostEdges} points={edgePoints} segments transparent lineWidth={2.5} depthWrite={false} fog={false} toneMapped={false} renderOrder={4} />
+    <group ref={invalidMark} visible={false}>
+      <Line points={[[-.5,-.5,-.505],[.5,.5,-.505],[-.5,.5,-.505],[.5,-.5,-.505],[-.5,-.5,.505],[.5,.5,.505],[-.5,.5,.505],[.5,-.5,.505]]} segments transparent color="#ff6575" lineWidth={3} fog={false} toneMapped={false} depthWrite={false} renderOrder={5} />
+    </group>
   </>;
 }
