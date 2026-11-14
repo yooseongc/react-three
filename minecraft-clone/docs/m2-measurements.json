@@ -1,0 +1,265 @@
+{
+  "baseline": {
+    "frames": 61,
+    "elapsedMs": 5023,
+    "medianFrameMs": 83.39999999999782,
+    "p95FrameMs": 100.09999999999854,
+    "renderer": "ANGLE (NVIDIA, NVIDIA GeForce GTX 1060 6GB (0x00001C03) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    "dpr": 1,
+    "viewport": [
+      1280,
+      720
+    ],
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/157.0.0.0 Safari/537.36",
+    "hardwareConcurrency": 16
+  },
+  "optimized": {
+    "frames": 300,
+    "elapsedMs": 5000.799999999999,
+    "medianFrameMs": 16.699999999999818,
+    "p95FrameMs": 16.799999999999272,
+    "maxDrawCalls": 50,
+    "drawCalls": 42,
+    "triangles": 22798,
+    "geometries": 32,
+    "chunkCount": 16,
+    "panel": "M2 성능 측정 월드\n60 FPS · 42 draws · 16 chunks · 9,216 faces\n측정 전용 · 저장하지 않음",
+    "renderer": "ANGLE (NVIDIA, NVIDIA GeForce GTX 1060 6GB (0x00001C03) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    "dpr": 1,
+    "viewport": [
+      1280,
+      720
+    ]
+  },
+  "boundaries": [
+    {
+      "mode": "negative",
+      "before": {
+        "position": "-1.040,0.500,10.000",
+        "grounded": "true",
+        "heading": "0",
+        "direction": "0,-0.0009069468582991974,-0.9999995887236135",
+        "target": "-1,2,6",
+        "drawCalls": "8",
+        "triangles": "90",
+        "chunkCount": "3",
+        "meshBuilds": "3",
+        "lastChunks": "",
+        "geometries": "6"
+      },
+      "removed": {
+        "position": "-1.040,0.500,10.000",
+        "grounded": "true",
+        "heading": "0",
+        "direction": "0,-0.0009069468582991974,-0.9999995887236135",
+        "target": "-1,2,5",
+        "drawCalls": "8",
+        "triangles": "82",
+        "chunkCount": "3",
+        "meshBuilds": "5",
+        "lastChunks": "-1,0,0;0,0,0",
+        "geometries": "6"
+      },
+      "restored": {
+        "position": "-1.040,0.500,10.000",
+        "grounded": "true",
+        "heading": "0",
+        "direction": "0,-0.0009069468582991974,-0.9999995887236135",
+        "target": "-1,2,6",
+        "drawCalls": "8",
+        "triangles": "90",
+        "chunkCount": "3",
+        "meshBuilds": "7",
+        "lastChunks": "-1,0,0;0,0,0",
+        "geometries": "6"
+      },
+      "final": {
+        "position": "-1.040,0.500,10.000",
+        "grounded": "true",
+        "heading": "0",
+        "direction": "0,-0.0009069468582991974,-0.9999995887236135",
+        "target": "-1,2,6",
+        "drawCalls": "8",
+        "triangles": "90",
+        "chunkCount": "3",
+        "meshBuilds": "7",
+        "lastChunks": "-1,0,0;0,0,0",
+        "geometries": "6"
+      },
+      "savedRestored": true
+    },
+    {
+      "mode": "vertical",
+      "before": {
+        "position": "0.000,15.500,10.000",
+        "grounded": "true",
+        "heading": "0",
+        "direction": "0,-0.29447579689866976,-0.9556589376136726",
+        "target": "0,16,6",
+        "drawCalls": "8",
+        "triangles": "106",
+        "chunkCount": "3",
+        "meshBuilds": "3",
+        "lastChunks": "",
+        "geometries": "6"
+      },
+      "removed": {
+        "position": "0.000,15.500,10.000",
+        "grounded": "true",
+        "heading": "0",
+        "direction": "0,-0.29447579689866976,-0.9556589376136726",
+        "target": "0,16,5",
+        "drawCalls": "8",
+        "triangles": "98",
+        "chunkCount": "3",
+        "meshBuilds": "5",
+        "lastChunks": "0,1,0;0,0,0",
+        "geometries": "6"
+      },
+      "restored": {
+        "position": "0.000,15.500,10.000",
+        "grounded": "true",
+        "heading": "0",
+        "direction": "0,-0.29447579689866976,-0.9556589376136726",
+        "target": "0,16,6",
+        "drawCalls": "8",
+        "triangles": "106",
+        "chunkCount": "3",
+        "meshBuilds": "7",
+        "lastChunks": "0,1,0;0,0,0",
+        "geometries": "6"
+      },
+      "final": {
+        "position": "0.000,15.500,10.000",
+        "grounded": "true",
+        "heading": "0",
+        "direction": "0,-0.29447579689866976,-0.9556589376136726",
+        "target": "0,16,6",
+        "drawCalls": "8",
+        "triangles": "106",
+        "chunkCount": "3",
+        "meshBuilds": "87",
+        "lastChunks": "0,1,0;0,0,0",
+        "geometries": "6"
+      },
+      "savedRestored": true
+    }
+  ],
+  "movement": [
+    {
+      "degrees": 0,
+      "key": "w",
+      "pass": true
+    },
+    {
+      "degrees": 0,
+      "key": "s",
+      "pass": true
+    },
+    {
+      "degrees": 0,
+      "key": "d",
+      "pass": true
+    },
+    {
+      "degrees": 0,
+      "key": "a",
+      "pass": true
+    },
+    {
+      "degrees": 0,
+      "jump": true,
+      "landed": true
+    },
+    {
+      "degrees": 90,
+      "key": "w",
+      "pass": true
+    },
+    {
+      "degrees": 90,
+      "key": "s",
+      "pass": true
+    },
+    {
+      "degrees": 90,
+      "key": "d",
+      "pass": true
+    },
+    {
+      "degrees": 90,
+      "key": "a",
+      "pass": true
+    },
+    {
+      "degrees": 90,
+      "jump": true,
+      "landed": true
+    },
+    {
+      "degrees": 180,
+      "key": "w",
+      "pass": true
+    },
+    {
+      "degrees": 180,
+      "key": "s",
+      "pass": true
+    },
+    {
+      "degrees": 180,
+      "key": "d",
+      "pass": true
+    },
+    {
+      "degrees": 180,
+      "key": "a",
+      "pass": true
+    },
+    {
+      "degrees": 180,
+      "jump": true,
+      "landed": true
+    },
+    {
+      "degrees": 270,
+      "key": "w",
+      "pass": true
+    },
+    {
+      "degrees": 270,
+      "key": "s",
+      "pass": true
+    },
+    {
+      "degrees": 270,
+      "key": "d",
+      "pass": true
+    },
+    {
+      "degrees": 270,
+      "key": "a",
+      "pass": true
+    },
+    {
+      "degrees": 270,
+      "jump": true,
+      "landed": true
+    }
+  ],
+  "demoPersistence": {
+    "initialTarget": "0,4,8",
+    "addedTarget": "0,5,8",
+    "addedCount": 16536,
+    "restoredCount": 16535,
+    "mapUpdated": false,
+    "personalUnchanged": true,
+    "reloaded": true
+  },
+  "minimap": {
+    "target": "0,4,5",
+    "placed": "0,5,5",
+    "mapUpdated": true,
+    "mapRestored": true
+  }
+}

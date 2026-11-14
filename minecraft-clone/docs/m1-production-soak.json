@@ -1,0 +1,85 @@
+{
+  "started": 1794636996497,
+  "ticks": 300,
+  "errors": [],
+  "lockLosses": 0,
+  "samples": [
+    {
+      "elapsed": 10002,
+      "position": "0.075,0.500,7.674",
+      "status": "VOXEL GARDEN\nM1 · 작은 건축 연습장\n변경 사항 저장 중… · 7 블록"
+    },
+    {
+      "elapsed": 20006,
+      "position": "-0.150,0.500,7.826",
+      "status": "VOXEL GARDEN\nM1 · 작은 건축 연습장\n저장 완료 · 9 블록"
+    },
+    {
+      "elapsed": 30009,
+      "position": "-0.149,0.500,7.901",
+      "status": "VOXEL GARDEN\nM1 · 작은 건축 연습장\n저장 완료 · 10 블록"
+    },
+    {
+      "elapsed": 40012,
+      "position": "-0.149,0.500,7.902",
+      "status": "VOXEL GARDEN\nM1 · 작은 건축 연습장\n저장 완료 · 11 블록"
+    },
+    {
+      "elapsed": 50001,
+      "position": "-0.150,0.500,7.902",
+      "status": "VOXEL GARDEN\nM1 · 작은 건축 연습장\n저장 완료 · 11 블록"
+    },
+    {
+      "elapsed": 60004,
+      "position": "-0.225,0.500,8.052",
+      "status": "VOXEL GARDEN\nM1 · 작은 건축 연습장\n변경 사항 저장 중… · 11 블록"
+    },
+    {
+      "elapsed": 70009,
+      "position": "-0.225,0.500,8.051",
+      "status": "VOXEL GARDEN\nM1 · 작은 건축 연습장\n변경 사항 저장 중… · 11 블록"
+    },
+    {
+      "elapsed": 80013,
+      "position": "-0.298,0.500,8.053",
+      "status": "VOXEL GARDEN\nM1 · 작은 건축 연습장\n변경 사항 저장 중… · 11 블록"
+    },
+    {
+      "elapsed": 90016,
+      "position": "-0.224,0.500,8.200",
+      "status": "VOXEL GARDEN\nM1 · 작은 건축 연습장\n변경 사항 저장 중… · 11 블록"
+    },
+    {
+      "elapsed": 100003,
+      "position": "-0.299,0.500,8.200",
+      "status": "VOXEL GARDEN\nM1 · 작은 건축 연습장\n변경 사항 저장 중… · 12 블록"
+    },
+    {
+      "elapsed": 110007,
+      "position": "-0.300,0.500,8.200",
+      "status": "VOXEL GARDEN\nM1 · 작은 건축 연습장\n변경 사항 저장 중… · 11 블록"
+    },
+    {
+      "elapsed": 120011,
+      "position": "-0.302,0.500,8.200",
+      "status": "VOXEL GARDEN\nM1 · 작은 건축 연습장\n변경 사항 저장 중… · 11 블록"
+    },
+    {
+      "elapsed": 130015,
+      "position": "-0.301,0.500,8.199",
+      "status": "VOXEL GARDEN\nM1 · 작은 건축 연습장\n변경 사항 저장 중… · 11 블록"
+    },
+    {
+      "elapsed": 140003,
+      "position": "-0.377,0.500,8.273",
+      "status": "VOXEL GARDEN\nM1 · 작은 건축 연습장\n변경 사항 저장 중… · 12 블록"
+    },
+    {
+      "elapsed": 150007,
+      "position": "-0.450,0.500,8.197",
+      "status": "VOXEL GARDEN\nM1 · 작은 건축 연습장\n변경 사항 저장 중… · 13 블록"
+    }
+  ],
+  "done": true,
+  "finished": 1794637146504
+}

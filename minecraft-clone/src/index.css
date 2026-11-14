@@ -1,28 +1,42 @@
-* {
-  box-sizing: border-box;
-}
-
-html,
-body,
-#root {
-  width: 100%;
-  height: 100%;
-  margin: 0;
-  padding: 0;
-  background-color: lightblue;
-  -webkit-touch-callout: none;
-  -webkit-user-select: none;
-  -khtml-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-  overflow: hidden;
-}
-
-body {
-  position: fixed;
-  overflow: hidden;
-  overscroll-behavior-y: none;
-  font-family: -apple-system, BlinkMacSystemFont, avenir next, avenir, helvetica neue, helvetica, ubuntu, roboto, noto, segoe ui, arial, sans-serif;
-  color: black;
-}
+* { box-sizing: border-box; }
+html, body, #root { width: 100%; height: 100%; margin: 0; overflow: hidden; }
+body { font-family: 'Segoe UI', sans-serif; background: #bed4d8; color: #edf3e7; }
+button { font: inherit; cursor: pointer; }
+button:focus-visible { outline: 3px solid #fff4b0; outline-offset: 4px; }
+.hud { position: fixed; inset: 0; pointer-events: none; }
+.status-bar { display: flex; justify-content: space-between; gap: 12px; padding: 24px 28px; text-shadow: 0 1px 4px #15291b; font-size: 13px; }
+.status-bar strong { letter-spacing: 3px; font-size: 16px; }
+.status-bar div span { display: block; margin-top: 6px; opacity: .8; }
+.crosshair { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 26px; text-shadow: 0 1px 3px #000; }
+.hotbar { position: absolute; bottom: 48px; left: 50%; transform: translateX(-50%); display: flex; gap: 6px; pointer-events: auto; padding: 7px; border-radius: 12px; background: #17271bd9; }
+.hotbar button { position: relative; display: grid; justify-items: center; gap: 3px; width: 66px; padding: 7px; border: 2px solid transparent; border-radius: 7px; background: #ffffff0c; color: #fff; font-size: 11px; }
+.hotbar button[aria-pressed=true] { border-color: #dfedb3; background: #d5e8ae28; }
+.hotbar img { width: 32px; height: 32px; image-rendering: pixelated; }
+.hotbar kbd { position: absolute; top: 3px; left: 4px; font-size: 10px; }
+.controls-hint { position: absolute; bottom: 17px; width: 100%; text-align: center; font-size: 12px; text-shadow: 0 1px 4px #000; }
+.menu-backdrop { position: absolute; inset: 0; display: grid; place-items: center; background: #132c2538; pointer-events: auto; padding: 22px; }
+.menu { width: min(460px, 100%); padding: 32px; border: 1px solid #c9dfb637; border-radius: 20px; background: #192c25ed; box-shadow: 0 20px 80px #0c211a40; }
+.eyebrow { font-size: 12px; letter-spacing: 3px; color: #bed198; }
+h1 { font-size: 27px; letter-spacing: -1px; margin: 14px 0; }
+.menu p { font-size: 14px; line-height: 1.8; color: #c5d2c7; }
+dl { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 24px 0; }
+dl div { border-bottom: 1px solid #ffffff15; padding-bottom: 10px; }
+dt { font-size: 12px; color: #e2edc6; }
+dd { margin: 5px 0 0; font-size: 12px; color: #aabdaf; }
+.primary, .save-button { width: 100%; border-radius: 8px; padding: 13px; border: 0; }
+.primary { background: #d3e5a5; color: #1c3227; font-weight: 700; }
+.primary:disabled { opacity: .5; cursor: wait; }
+.save-button { margin-top: 9px; background: #ffffff0c; color: #dbe7d4; }
+.menu small { display: block; text-align: center; margin-top: 17px; color: #95ac9b; font-size: 11px; }
+.menu .notice { padding: 10px; border-radius: 6px; background: #e6ca7430; color: #f5e6b1; font-size: 12px; }
+.fatal-error { padding: 40px; color: #20372c; }
+.minimap { position: absolute; top: 74px; right: 28px; width: 192px; padding: 8px; border: 1px solid #d3e5a538; border-radius: 12px; background: #192c25e8; box-shadow: 0 5px 20px #10251e30; }
+.minimap-title { display: flex; justify-content: space-between; font-size: 11px; color: #d3e5a5; margin: 0 2px 7px; }
+.minimap canvas { display: block; width: 100%; height: auto; border-radius: 5px; image-rendering: pixelated; }
+.minimap-coordinates { text-align: center; font-size: 11px; font-variant-numeric: tabular-nums; margin-top: 6px; }
+.minimap small { display: block; text-align: center; font-size: 9px; color: #9caf9c; margin-top: 5px; }
+.performance-panel { position: absolute; top: 92px; left: 28px; padding: 12px 16px; border: 1px solid #d3e5a538; border-radius: 10px; background: #192c25e8; font-size: 12px; }
+.performance-panel span, .performance-panel small { display: block; margin-top: 7px; }
+.performance-panel small { color: #b5c7a4; font-size: 10px; }
+@media (max-width: 700px), (max-height: 650px) { .minimap { width: 138px; right: 12px; top: 64px; } }
+@media (max-height: 650px) { .menu { padding: 20px; } dl { margin: 12px 0; gap: 6px; } .status-bar { padding: 12px; } }
