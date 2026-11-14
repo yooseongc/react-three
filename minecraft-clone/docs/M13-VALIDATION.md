@@ -73,3 +73,13 @@ CPU 생성 비교는 `npm run benchmark:maps`로 다시 실행할 수 있다. �
 ![군도](m13-islands-150.png)
 ![설원](m13-snow-200.png)
 ![모바일 화면 에뮬레이션](m13-mobile-snow.png)
+
+## 공개 배포 완료
+
+- 구현 커밋 `2d97261`, gh-pages 배포 커밋 `11a6072ba3d43d63906a0b30ce851d8a8b4f8ded`.
+- M11~M13을 원격 main에 함께 푸시하고 `npm run deploy`로 게시했다.
+- 공개 번들 `assets/index-DY1royqn.js`가 검증한 로컬 빌드와 일치함을 확인했다.
+- 공개 군도 150에서 월드 UI로 설원 200 선택/이동 확인. 눈 재료 집기, 미리보기 `(0,6,8)`와 실제 설치 일치, ‘저장됨’, 실행 취소 후 빈 변경분 저장 확인.
+- 배경음 준비 완료, 런타임 오류 0. 기존 R3F Clock 경고 1건 유지.
+- [공개 군도](https://yooseongc.github.io/react-three/?world=willow&map=islands&size=150) · [공개 설원](https://yooseongc.github.io/react-three/?world=willow&map=snow&size=200).
+- 실제 휴대폰 검증은 여전히 미완료이며 배포 성공과 구분한다.
