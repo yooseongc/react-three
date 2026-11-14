@@ -111,3 +111,36 @@ dd { margin: 5px 0 0; font-size: 12px; color: #aabdaf; }
   .minimap-coordinates, .build-status, .history-hint, .performance-panel { display: none; }
   .placement-hint { top: calc(50% + 18px); font-size: 10px; }
 }
+
+/* Touch controls stay above the look surface; menus keep native scrolling. */
+.touch-controls { position:absolute; inset:0; pointer-events:none; user-select:none; -webkit-user-select:none; }
+.touch-look { position:absolute; top:0; right:0; width:65%; bottom:85px; pointer-events:auto; touch-action:none; }
+.touch-stick { position:absolute; left:max(16px,env(safe-area-inset-left)); bottom:calc(100px + env(safe-area-inset-bottom)); width:112px; height:112px; border:2px solid #e9f3c96b; border-radius:50%; background:#142b3370; display:grid; place-items:center; pointer-events:auto; touch-action:none; }
+.touch-stick span { display:grid; place-items:center; width:48px; height:48px; background:#e0edc7a0; color:#20362e; border-radius:50%; font-size:12px; pointer-events:none; }
+.touch-toolbar,.touch-actions { position:absolute; display:grid; gap:6px; pointer-events:auto; }
+.touch-toolbar { top:calc(105px + env(safe-area-inset-top)); left:max(12px,env(safe-area-inset-left)); grid-template-columns:repeat(2,48px); }
+.touch-actions { right:max(12px,env(safe-area-inset-right)); bottom:calc(98px + env(safe-area-inset-bottom)); grid-template-columns:repeat(2,52px); }
+.touch-controls button { min-height:44px; border:1px solid #cfe2b480; border-radius:9px; background:#19352ee8; color:#eff6de; touch-action:none; font-size:11px; padding:4px; white-space:nowrap; }
+.touch-controls button:disabled { opacity:.4; }
+.touch-controls button[aria-pressed=true] { background:#d8e9ab; color:#20362e; }
+.touch-controls .touch-destroy { border-color:#f3b59d; }
+.touch-mode .hotbar { z-index:3; bottom:calc(8px + env(safe-area-inset-bottom)); max-width:calc(100% - 16px - env(safe-area-inset-left) - env(safe-area-inset-right)); gap:2px; padding:4px; overflow-x:auto; scrollbar-width:none; touch-action:pan-x; }
+.touch-mode .hotbar button { min-width:44px; flex-shrink:0; min-height:52px; width:44px; padding:3px; font-size:10px; }
+.touch-mode .hotbar img,.touch-mode .material-swatch { width:24px; height:24px; }
+.touch-mode .hotbar kbd { display:none; }
+.touch-mode .controls-hint,.touch-mode .build-status,.touch-mode .history-hint { display:none; }
+.touch-mode .minimap { top:calc(75px + env(safe-area-inset-top)); right:max(12px,env(safe-area-inset-right)); width:112px; padding:6px; }
+.touch-mode .minimap small { display:none; }
+.touch-mode .minimap-coordinates { display:block; font-size:9px; }
+.touch-mode .status-bar { padding-top:calc(12px + env(safe-area-inset-top)); }
+.touch-mode .menu-backdrop { padding: max(12px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left)); }
+.touch-mode .menu { touch-action:pan-y; max-height:100%; }
+@media (max-height:500px) {
+ .touch-mode .minimap { width:84px; top:12px; }
+ .touch-mode .minimap-coordinates { font-size:8px; }
+ .touch-mode .status-bar > span { margin-right:88px; }
+ .touch-toolbar { top:106px; grid-template-columns:repeat(4,44px); }
+ .touch-stick { bottom:calc(68px + env(safe-area-inset-bottom)); width:100px; height:100px; }
+ .touch-actions { bottom:calc(68px + env(safe-area-inset-bottom)); }
+ .touch-mode .placement-hint { max-width:50%; }
+}

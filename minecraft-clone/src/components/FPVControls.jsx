@@ -10,6 +10,7 @@ export function FPVControls() {
     controls.pointerSpeed = useStore.getState().sensitivity;
     const unsubscribe = useStore.subscribe(state => { controls.pointerSpeed = state.sensitivity; });
     const change = () => {
+      if(useStore.getState().touchMode)return;
       const playing = document.pointerLockElement === gl.domElement;
       useStore.getState().setPlaying(playing);
       if (!playing && useStore.getState().dirty) useStore.getState().saveWorld();
@@ -17,6 +18,7 @@ export function FPVControls() {
     const error = () => useStore.getState().setControlError('마우스 잠금을 허용하지 못했습니다. 다시 시작 버튼을 눌러주세요.');
     const pause = () => {
       useStore.getState().setPlaying(false);
+      if(useStore.getState().dirty)useStore.getState().saveWorld();
       if (document.pointerLockElement) document.exitPointerLock();
     };
     const hide = () => { if (document.hidden) pause(); };

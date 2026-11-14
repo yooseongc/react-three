@@ -56,6 +56,8 @@ export const useStore = create((set, get) => ({
   toggleSound: () => get().updateSettings({ soundEnabled: !get().soundEnabled }),
   changePage: () => set(state => ({ palettePage: 1 - state.palettePage })),
   playing: false,
+  touchMode: window.matchMedia?.('(pointer: coarse)').matches || false,
+  setTouchMode: touchMode => { if(document.pointerLockElement)document.exitPointerLock();set({touchMode,playing:false}); },
   ready: false,
   dirty: false,
   undoStack: [],

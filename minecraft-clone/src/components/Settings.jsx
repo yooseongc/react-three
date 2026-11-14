@@ -8,6 +8,8 @@ export default function Settings() {
   const [audioError,setAudioError]=useState(ambienceStatus.error);
   useEffect(()=>{const timer=setInterval(()=>setAudioError(ambienceStatus.error),500);return()=>clearInterval(timer);},[]);
   return <div className="settings-panel">
+    <label><input type="checkbox" checked={state.touchMode} onChange={e=>state.setTouchMode(e.target.checked)} /> 터치 조작</label>
+    <p>휴대폰은 터치 조작으로 시작합니다. 왼쪽 스틱으로 이동하고 오른쪽 화면을 드래그해 둘러보세요. 설치·파괴는 버튼을 눌러 실행합니다. 느리면 그림자를 꺼보세요.</p>
     <label>마우스 감도 <output>{state.sensitivity.toFixed(2)}×</output>
       <input aria-label="마우스 감도" type="range" min="0.25" max="2" step="0.05" value={state.sensitivity} onChange={e=>state.updateSettings({sensitivity:Number(e.target.value)})} /></label>
     <label><input type="checkbox" checked={state.soundEnabled} onChange={e=>state.updateSettings({soundEnabled:e.target.checked})} /> 효과음</label>

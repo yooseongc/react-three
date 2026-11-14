@@ -1,6 +1,7 @@
 import { useFrame, useThree } from '@react-three/fiber';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
-import { Vector3, BoxGeometry, EdgesGeometry } from 'three';
+import { Vector3, BoxGeometry, EdgesGeometry, Euler } from 'three';
+import { touchInput } from '../game/touch';
 import { Line } from '@react-three/drei';
 import { useKeyboardControls } from '../hooks/useKeyboardControls';
 import { useStore } from '../hooks/useStore';
@@ -27,6 +28,7 @@ export default function Player() {
   const planeNormal = useMemo(() => new Vector3(0,0,1), []);
   const texture = useStore(state => state.texture);
   const forward = useMemo(() => new Vector3(), []);
+  const touchRotation = useMemo(() => new Euler(0,0,0,'YXZ'), []);
   const heading = useRef(0);
   const wasFlying = useRef(false);
   const edges = useMemo(() => {
@@ -45,18 +47,20 @@ export default function Player() {
 
   useEffect(() => {
     const click = event => {
-      if (!useStore.getState().playing || document.pointerLockElement !== gl.domElement) return;
-      if (![0,1,2].includes(event.button)) return;
+      const isTouch=event.type==='voxel-action';
+      const state = useStore.getState();
+      if (!state.playing || (isTouch ? !state.touchMode : document.pointerLockElement !== gl.domElement)) return;
+      const button=isTouch?event.detail:event.button;
+      if (![0,1,2].includes(button)) return;
       event.preventDefault();
       const hit = target();
       if (!hit) return;
-      const state = useStore.getState();
       const block = hit.block;
-      if (event.button === 1) {
+      if (button === 1) {
         if (block) state.setTexture(state.world.blocks.get(block.join(',')).texture);
         return;
       }
-      if (event.button === 0) {
+      if (button === 0) {
         if (block) {
           const texture = state.world.blocks.get(block.join(',')).texture;
           state.removeCube(...block);
@@ -69,23 +73,33 @@ export default function Player() {
     };
     const context = event => event.preventDefault();
     gl.domElement.addEventListener('mousedown', click);
+    window.addEventListener('voxel-action', click);
     gl.domElement.addEventListener('contextmenu', context);
     useStore.getState().setReady(true);
     return () => {
       gl.domElement.removeEventListener('mousedown', click);
+      window.removeEventListener('voxel-action', click);
       gl.domElement.removeEventListener('contextmenu', context);
     };
   }, [gl, target]);
 
   useFrame((_, delta) => {
     const state = useStore.getState();
+    if(state.touchMode && state.playing) {
+      touchRotation.setFromQuaternion(camera.quaternion);
+      touchRotation.y-=touchInput.lookX*.004*state.sensitivity;
+      touchRotation.x=Math.max(-Math.PI/2+.01,Math.min(Math.PI/2-.01,touchRotation.x-touchInput.lookY*.004*state.sensitivity));
+      camera.quaternion.setFromEuler(touchRotation);
+      touchInput.lookX=touchInput.lookY=0;
+    }
     camera.getWorldDirection(forward);
     heading.current = horizontalHeading(forward, heading.current);
     if (state.playing) {
       if (wasFlying.current !== state.flying) player.current.vy = 0;
       wasFlying.current = state.flying;
-      player.current = stepPlayer(player.current, { ...input.current, flying: state.flying }, heading.current, delta, state.world);
+      player.current = stepPlayer(player.current, { ...input.current, ...(state.touchMode?touchInput:{}), flying: state.flying }, heading.current, delta, state.world);
       input.current.jump = false;
+      touchInput.jump = false;
     }
     const p = player.current;
     Object.assign(playerView, { x: p.x, y: p.y, z: p.z, heading: heading.current });

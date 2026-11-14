@@ -30,6 +30,7 @@ class SceneErrorBoundary extends React.Component {
 export default function App() {
   const cubes = useStore(state => state.cubes);
   const shadows = useStore(state => state.shadows);
+  const touchMode = useStore(state => state.touchMode);
   useEffect(() => {
     if (!useStore.getState().dirty) return;
     const timer = setTimeout(() => useStore.getState().saveWorld(), 500);
@@ -52,7 +53,7 @@ export default function App() {
     };
   }, []);
   return <SceneErrorBoundary>
-    <Canvas shadows={shadows ? 'percentage' : false} camera={{ fov: 70, near: 0.1, far: 180, position: [0, 2.12, 10] }} dpr={[1, 1.5]}
+    <Canvas shadows={shadows ? 'percentage' : false} camera={{ fov: 70, near: 0.1, far: 180, position: [0, 2.12, 10] }} dpr={touchMode ? 1 : [1, 1.5]}
       onCreated={({ gl }) => {
         gl.domElement.setAttribute('aria-label', '복셀 정원 게임 화면');
         // Count both shadow and main passes, reset once at the next frame boundary.
