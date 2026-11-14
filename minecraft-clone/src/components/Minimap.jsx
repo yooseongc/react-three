@@ -42,7 +42,7 @@ export default function Minimap() {
       landscape.water.forEach(([x,,z]) => { if (!occupied.has(`${x},${z}`)) map.fillRect(project(x-.5),project(z-.5),SCALE,SCALE); });
     }
     const draw = () => {
-      const { x, z, heading } = playerView;
+      const { x, y, z, heading } = playerView;
       ctx.clearRect(0, 0, SIZE, SIZE);
       ctx.drawImage(terrain, 0, 0);
       // Spawn marker (0, 10); north is always -Z, at the top of the map.
@@ -59,7 +59,7 @@ export default function Minimap() {
       ctx.restore();
       canvas.current.dataset.position = [x, z].map(n => n.toFixed(3)).join(',');
       canvas.current.dataset.heading = String(heading);
-      coordinates.current.textContent = 'X ' + x.toFixed(1) + ' · Z ' + z.toFixed(1);
+      coordinates.current.textContent = 'X ' + x.toFixed(1) + ' · Y ' + y.toFixed(1) + ' · Z ' + z.toFixed(1);
     };
     draw();
     const timer = setInterval(draw, 100);
@@ -68,7 +68,7 @@ export default function Minimap() {
   return <aside className="minimap" aria-label="미니맵 · 북쪽 고정">
     <div className="minimap-title">주변 지도 <span>N ↑</span></div>
     <canvas ref={canvas} width={SIZE} height={SIZE} role="img" aria-label="블록 배치와 현재 위치 및 시선 방향" />
-    <div ref={coordinates} className="minimap-coordinates" />
+    <div ref={coordinates} className="minimap-coordinates" title="X·Z는 수평 위치, Y는 플레이어 발밑 높이입니다" />
     <small>▲ 나 · □ 시작점 · 100 × 100</small>
   </aside>;
 }

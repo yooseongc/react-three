@@ -62,6 +62,7 @@ export const useStore = create((set, get) => ({
   redoStack: [],
   historyNotice: '',
   saveStatus: '저장 대기',
+  saveRevision: 0,
   controlError: '',
   setPlaying: playing => set({ playing }),
   setReady: ready => set({ ready }),
@@ -112,7 +113,7 @@ export const useStore = create((set, get) => ({
       localStorage.setItem(storageKey, slotId ? JSON.stringify(exportWorld(get().cubes, landscapeSeed)) : landscape
         ? serializeTerrain(landscapeSeed, terrainBase, get().world.blocks)
         : JSON.stringify({ version: 1, cubes: get().cubes }));
-      set({ dirty: false, saveStatus: '저장 완료' });
+      set({ dirty: false, saveStatus: '저장 완료', saveRevision: get().saveRevision + 1 });
       return true;
     } catch {
       set({ saveStatus: '저장 실패 · 저장 공간 / 권한 확인' });

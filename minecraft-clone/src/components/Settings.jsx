@@ -13,6 +13,8 @@ export default function Settings() {
     <label><input type="checkbox" checked={state.soundEnabled} onChange={e=>state.updateSettings({soundEnabled:e.target.checked})} /> 효과음</label>
     <label><input type="checkbox" checked={state.shadows} onChange={e=>state.updateSettings({shadows:e.target.checked})} /> 그림자</label>
     <label><input type="checkbox" checked={state.showMinimap} onChange={e=>state.updateSettings({showMinimap:e.target.checked})} /> 미니맵</label>
+    <label><input type="checkbox" checked={state.showWildlife} onChange={e=>state.updateSettings({showWildlife:e.target.checked})} /> 작은 생태계 · 토끼·오리·여우·양</label>
+    <p>숲 월드의 풀밭과 물가를 살펴보세요. 가까이 가면 동물이 피하고, 밤이나 비·눈이 오는 날에는 더 자주 쉽니다. 메뉴에서는 움직임이 멈춥니다.</p>
     <label><input type="checkbox" checked={state.landscapeMotion} onChange={e=>state.updateSettings({landscapeMotion:e.target.checked})} /> 풍경 움직임 · 물결과 바람</label>
     <p>물결·풀·잎·구름·안개가 움직입니다. 움직임이 불편하면 꺼보세요. 낮밤 순환과는 별도이며 메뉴에서는 멈춥니다.</p>
     <hr />

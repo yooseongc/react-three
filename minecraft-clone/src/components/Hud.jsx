@@ -14,6 +14,7 @@ import WorldManager from './WorldManager';
 import Settings from './Settings';
 import WorldTime from './WorldTime';
 import PlacementHint from './PlacementHint';
+import SaveStatus from './SaveStatus';
 import { RECENT_KEY, safeWorldQuery } from '../game/transfer';
 
 const icons = [dirt, grass, glass, wood, log];
@@ -40,8 +41,7 @@ export default function Hud() {
   return <div className={'hud' + (state.playing ? '' : ' is-paused')}>
     <header className="status-bar">
       <div><strong>VOXEL GARDEN</strong><span>{landscape ? `물빛 숲 · ${landscapeSeed}` : '작은 건축 연습장'}</span></div>
-      <span role="status">{state.saveStatus.includes('실패') || state.saveStatus.includes('불가')
-        ? state.saveStatus : state.dirty ? '변경 사항 저장 중…' : state.saveStatus} · {state.cubes.length} 블록</span>
+      <SaveStatus dirty={state.dirty} canSave={state.canSave} saveStatus={state.saveStatus} saveRevision={state.saveRevision} />
     </header>
     {state.showMinimap && <Minimap />}
     <WorldTime />

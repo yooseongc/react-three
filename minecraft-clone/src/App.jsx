@@ -3,6 +3,7 @@ import { Canvas } from '@react-three/fiber';
 import DayNight from './components/DayNight';
 import LandscapeMotion from './components/LandscapeMotion';
 import Weather from './components/Weather';
+import Wildlife from './components/Wildlife';
 import Ground from './components/Ground';
 import Player from './components/Player';
 import Cubes from './components/Cubes';
@@ -63,6 +64,7 @@ export default function App() {
       <Ground />
       <Cubes />
       <Decorations />
+      <Wildlife />
       <Water />
       <BlockParticles />
       <Player />
