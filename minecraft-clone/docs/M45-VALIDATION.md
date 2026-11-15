@@ -27,4 +27,8 @@
 
 ## 배포
 
-검증 완료, 커밋·푸시·배포 진행 중.
+- 소스 커밋 `9555693` main 푸시 완료.
+- gh-pages `7e0e01dadebc432e3ea3512b032217824d3b9204` 게시 완료.
+- [GitHub Pages 배포 성공](https://github.com/yooseongc/react-three/actions/runs/43775588615).
+- 공개 번들 `index-BiChjt53.js` 반영 확인. 사막 기후 안내와 설원 → 산호섬 감상 장면의 기후 일치 확인, 페이지 오류 0.
+- [공개 데모](https://yooseongc.github.io/react-three/).
