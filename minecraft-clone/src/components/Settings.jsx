@@ -1,3 +1,5 @@
+import { activeMap } from '../game/mapConfig';
+import { climateFor } from '../game/climate';
 import { useStore } from '../hooks/useStore';
 import { formatTime, worldClock } from '../game/daylight';
 import { WEATHER_LABELS } from '../game/weather';
@@ -22,7 +24,7 @@ export default function Settings() {
       </section>
       <section className="setting-card"><span className="eyebrow">WEATHER</span><h2>날씨</h2>
         <label htmlFor="weather-mode">날씨</label><select id="weather-mode" value={state.weatherMode} onChange={e=>state.updateSettings({weatherMode:e.target.value})}>{Object.entries(WEATHER_LABELS).map(([value,label])=><option key={value} value={value}>{label}</option>)}</select>
-        <small>자동으로 두면 3~6분마다 달라집니다.</small>
+        <small>{state.weatherMode==='auto' ? `${climateFor(activeMap.mapType).name} · ${climateFor(activeMap.mapType).description}. 맵과 시간대에 따라 천천히 달라집니다.` : '선택한 날씨를 유지합니다. 자동으로 바꾸면 이 맵의 기후를 따릅니다.'}</small>
         {toggle('landscapeMotion','물결과 바람')}{toggle('showWildlife','동물')}
       </section>
     </div>}

@@ -43,7 +43,7 @@ if (isTour) initial = { cubes: landscape.cubes, canSave: false, notice: '' };
 let settings;
 try { settings = loadSettings(localStorage); } catch { settings = cleanSettings(null); }
 
-const firstTourScene=isTour?{...chooseTourScene(),mapType:activeMap.mapType}:null;
+const firstTourScene=isTour?chooseTourScene({},[],Math.random,activeMap.mapType):null;
 export const useStore = create((set, get) => ({
   ...initial,
   world: createVoxelWorld(initial.cubes),

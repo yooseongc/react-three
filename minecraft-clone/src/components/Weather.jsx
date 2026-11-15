@@ -1,8 +1,11 @@
+import { activeMap } from '../game/mapConfig';
+import { worldClock } from '../game/daylight';
+import { climateFor } from '../game/climate';
 import { useEffect, useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { BufferGeometry, Float32BufferAttribute } from 'three';
 import { useStore } from '../hooks/useStore';
-import { advanceWeatherSchedule, roofAt, roofHeights, stepWeather, weatherDuration, weatherState } from '../game/weather';
+import { createWeatherSchedule, advanceWeatherSchedule, roofAt, roofHeights, stepWeather, weatherDuration, weatherState } from '../game/weather';
 import { weatherUniforms } from '../game/weatherMaterials';
 import { ambienceStatus } from '../game/ambience';
 import { useAmbience } from '../hooks/useAmbience';
@@ -18,7 +21,7 @@ export default function Weather() {
   const roofs=useMemo(()=>roofHeights(world.blocks),[world]);
   const rain=useRef(); const snow=useRef(); const clock=useRef(0);
   const schedule=useRef(null); const lastMode=useRef(null);
-  if(!schedule.current)schedule.current={mode:'clear',remaining:weatherDuration()};
+  if(!schedule.current)schedule.current=createWeatherSchedule(activeMap.mapType,useStore.getState().timeOfDay);
   const geometry=useMemo(()=>{
     const value=new BufferGeometry();
     value.setAttribute('position',new Float32BufferAttribute(new Float32Array(DROP_COUNT*6),3));
@@ -38,10 +41,10 @@ export default function Weather() {
   useFrame(({camera,gl},delta)=>{
     const state=useStore.getState();
     if(lastMode.current!==state.weatherMode){
-      schedule.current={mode:state.weatherMode==='auto' ? schedule.current.mode : state.weatherMode,remaining:weatherDuration()};
+      schedule.current=state.weatherMode==='auto' ? (lastMode.current===null?schedule.current:createWeatherSchedule(activeMap.mapType,worldClock.hour)) : {mode:state.weatherMode,remaining:weatherDuration(Math.random,activeMap.mapType,state.weatherMode,worldClock.hour)};
       lastMode.current=state.weatherMode;
     }
-    schedule.current=advanceWeatherSchedule(schedule.current,delta,state.weatherMode==='auto' && state.playing && !document.hidden);
+    schedule.current=advanceWeatherSchedule(schedule.current,delta,state.weatherMode==='auto' && state.playing && !document.hidden,Math.random,{mapType:activeMap.mapType,hour:worldClock.hour});
     const current=state.weatherMode==='auto' ? schedule.current.mode : state.weatherMode;
     weatherState.current=current;
     // Settings preview transitions in the menu; falling rain remains paused there.
@@ -87,6 +90,7 @@ export default function Weather() {
       }
       snowGeometry.attributes.position.needsUpdate=true;
     }
+    gl.domElement.dataset.climate=climateFor(activeMap.mapType).name;
     gl.domElement.dataset.weather=current;
     gl.domElement.dataset.weatherMode=state.weatherMode;
     gl.domElement.dataset.weatherRemaining=schedule.current.remaining.toFixed(2);
