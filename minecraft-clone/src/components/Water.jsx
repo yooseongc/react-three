@@ -24,7 +24,7 @@ export default function Water() {
       indices.push(start,start+1,start+2,start,start+2,start+3);
     }
     // Ocean continues beyond the editable map so coastal views meet a horizon.
-    if(['forest','islands'].includes(landscape.mapType)){
+    if(['forest','islands','canal','coral'].includes(landscape.mapType)){
       const edge=landscape.size/2-.5,far=edge+180;
       const regions=[[-far,-edge,-far,far],[edge,far,-far,far],[-edge,edge,-far,-edge],[-edge,edge,edge,far]];
       for(const [x0,x1,z0,z1] of regions)for(let x=x0;x<x1;x+=8)for(let z=z0;z<z1;z+=8){

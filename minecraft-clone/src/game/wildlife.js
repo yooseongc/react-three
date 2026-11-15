@@ -13,7 +13,7 @@ export const WILDLIFE_SPECIES={
 };
 export const WILDLIFE_LIMIT=32;
 export function wildlifePopulation(mapType='forest'){
- const overrides={forest:{horse:0,gull:3},meadow:{deer:2,gull:0,fish:5},islands:{rabbit:4,fox:0,deer:0,horse:0},snow:{deer:4,horse:0,gull:0,fish:3}}[mapType]||{};
+ const overrides={canal:{rabbit:0,fox:0,sheep:0,deer:0,horse:0,gull:4},onsen:{horse:0,gull:0,deer:2},oasis:{rabbit:2,fox:2,sheep:0,deer:0,horse:0,gull:0},autumn:{horse:0,gull:0,deer:4},coral:{rabbit:2,fox:0,sheep:0,deer:0,horse:0,gull:4},sky:{duck:0,fish:0,fox:0,sheep:0,deer:0,horse:0,gull:0},shrine:{rabbit:4,fox:2,sheep:0,deer:2,horse:0,gull:0},moon:{rabbit:4,fox:0,sheep:0,deer:0,horse:0,gull:0},pine:{rabbit:4,fox:0,sheep:0,deer:2,horse:0,gull:0},forest:{horse:0,gull:3},meadow:{deer:2,gull:0,fish:5},islands:{rabbit:4,fox:0,deer:0,horse:0},snow:{deer:4,horse:0,gull:0,fish:3}}[mapType]||{};
  return Object.entries(WILDLIFE_SPECIES).flatMap(([type,{count}])=>Array(overrides[type]??count).fill(type)).slice(0,WILDLIFE_LIMIT);
 }
 export const WILDLIFE_RANGE=45;

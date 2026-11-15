@@ -1,10 +1,14 @@
+import { EXTRA_BLOCKS } from './expansionCatalog';
 import { nearbyBlocks } from './voxels';
-import { MAP_LIMIT } from './mapConfig';
+import { MAP_LIMIT, activeMap } from './mapConfig';
 
 export const BLOCK_TYPES = ['dirt', 'grass', 'glass', 'wood', 'log', 'sand', 'stone', 'leaves', 'brick', 'plaster', 'roof', 'slate', 'snow', 'lantern'];
+BLOCK_TYPES.push(...EXTRA_BLOCKS.map(b=>b[0]));
 export const ALL_BLOCK_TYPES = BLOCK_TYPES;
 export const BLOCK_LABELS = ['흙', '잔디', '유리', '목재', '원목', '모래', '돌', '잎', '벽돌', '회벽', '기와', '판석', '눈', '등불'];
 export const BLOCK_COLORS = ['#ba8a60', '#a0bd65', '#b3e4e9', '#e0bf84', '#947252', '#d8c591', '#848f91', '#5e8b4c', '#b36b52', '#e7dfc8', '#697e86', '#9eaaa6', '#e5eff1', '#ffd28b'];
+BLOCK_LABELS.push(...EXTRA_BLOCKS.map(b=>b[1]));
+BLOCK_COLORS.push(...EXTRA_BLOCKS.map(b=>b[2]));
 export const WORLD_LIMIT = MAP_LIMIT;
 export const FLOOR = 0.5;
 export const PLAYER_RADIUS = 0.3;
@@ -114,5 +118,6 @@ export function stepPlayer(player, input, yaw, delta, cubes) {
     if (p.y <= FLOOR) { p.y = FLOOR; p.vy = 0; p.grounded = true; }
     if (p.y > 70) { p.y = 70; p.vy = 0; }
   }
+  if(activeMap.mapType==='sky' && !input.flying && p.y<5)return spawnPosition(cubes.blocks||cubes);
   return p;
 }

@@ -2,13 +2,14 @@ import { useEffect, useRef } from 'react';
 import { useStore } from '../hooks/useStore';
 import { playerView } from '../game/navigation';
 import { landscape } from '../game/landscape';
+import { BLOCK_TYPES, BLOCK_COLORS } from '../game/world';
 import { activeMap } from '../game/mapConfig';
 
 const SIZE = 192;
 const PAD = 14;
 const SCALE = (SIZE - PAD * 2) / activeMap.size;
 const project = value => SIZE / 2 + value * SCALE;
-const colors = { dirt: '#ba8a60', grass: '#a0bd65', glass: '#b3e4e9', wood: '#e0bf84', log: '#947252', sand: '#d8c591', stone: '#848f91', leaves: '#426d43', brick: '#b36b52', plaster: '#e7dfc8', roof: '#697e86', slate: '#9eaaa6', snow:'#e5eff1' };
+const colors = Object.fromEntries(BLOCK_TYPES.map((type,i)=>[type,BLOCK_COLORS[i]]));
 
 export default function Minimap() {
   const canvas = useRef();

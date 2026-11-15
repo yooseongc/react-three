@@ -8,7 +8,7 @@ import { playerView } from '../game/navigation';
 
 export default function TourCamera(){
  const route=useMemo(()=>createTourRoute(landscape),[]);
- const preferred={forest:'sailboat',meadow:'windmill',islands:'lighthouse',snow:'cabin'}[landscape.mapType];
+ const preferred={forest:'sailboat',meadow:'windmill',islands:'lighthouse',snow:'cabin',canal:'belltower',onsen:'bath',oasis:'market',autumn:'mill',coral:'bungalow',sky:'observatory',shrine:'shrine',moon:'moonGate',pine:'byeolseo'}[landscape.mapType];
  const highlights=route.shots.filter(s=>s.stop.type===preferred);
  const opening=highlights.length?highlights:route.shots;
  const cursor=useRef(opening[Math.floor(Math.random()*opening.length)].index),seek=useRef(tourView.seek),hold=useRef(3),lastStop=useRef(-1),first=useRef(true);

@@ -1,4 +1,5 @@
-const maps=['forest','meadow','islands','snow'];
+import { MAP_TYPES } from './mapConfig';
+const maps=Object.keys(MAP_TYPES);
 const weather=['clear','cloudy','rain','fog','snow'];
 const hours=[6.5,9,13,17.5,19,22];
 const pick=(values,random)=>values[Math.min(values.length-1,Math.floor(random()*values.length))];

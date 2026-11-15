@@ -25,7 +25,7 @@ export default function Cubes() {
   const materials = useMemo(() => Object.fromEntries(ALL_BLOCK_TYPES.map(type => {
     const material = new MeshStandardMaterial({ map: textures[type], color: type === 'glass' ? '#d5f1ff' : 'white',
       transparent: type === 'glass', opacity: type === 'glass' ? 0.6 : 1, depthWrite: type !== 'glass' });
-    if(type === 'leaves')animateSurface(material,'leaves');
+    if(['leaves','mapleLeaves','goldenLeaves','cherryLeaves','palmLeaves'].includes(type))animateSurface(material,'leaves');
     if(type === 'lantern'){material.emissive.set('#ffbd61');material.emissiveMap=textures.lantern;material.emissiveIntensity=.8;}
     return [type, type === 'glass' ? material : wetSurface(material)];
   })), []);

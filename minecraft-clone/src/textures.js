@@ -20,7 +20,7 @@ function naturalTexture(rgb, pattern) {
         const shade = ((Math.imul(i + 7, 1103515245) >>> 16) % 23) - 11;
         const x = i % 16, y = Math.floor(i / 16);
         const line = pattern === 'brick' ? y % 8 === 0 || (x + (y >= 8 ? 4 : 0)) % 8 === 0
-          : pattern === 'roof' ? y % 4 === 0 : pattern === 'slate' ? x === 0 || y === 0 : false;
+          : pattern === 'bamboo' ? y%6===0 || x%8===0 : pattern === 'roof' ? y % 4 === 0 : pattern === 'slate' ? x === 0 || y === 0 : false;
         rgb.forEach((v, c) => { pixels[i * 4 + c] = Math.max(0, Math.min(255, v + shade - (line ? 32 : 0))); });
         pixels[i * 4 + 3] = 255;
     }
@@ -48,3 +48,24 @@ ground.repeat.set(activeMap.size, activeMap.size);
     // Shared materials are constructed outside R3F's JSX color conversion path.
     texture.colorSpace = SRGBColorSpace;
 });
+
+export const limestone = naturalTexture([221, 216, 185], 'slate');
+export const terracotta = naturalTexture([185, 94, 67], 'roof');
+export const ochreWall = naturalTexture([223, 184, 112]);
+export const roseWall = naturalTexture([220, 163, 147]);
+export const tealWall = naturalTexture([166, 197, 181]);
+export const darkWood = naturalTexture([97, 80, 68], 'roof');
+export const bamboo = naturalTexture([142, 170, 91], 'bamboo');
+export const sandstone = naturalTexture([212, 172, 117], 'brick');
+export const redSand = naturalTexture([180, 123, 88]);
+export const mapleLeaves = naturalTexture([189, 101, 72]);
+export const goldenLeaves = naturalTexture([212, 171, 70]);
+export const cherryLeaves = naturalTexture([232, 182, 200]);
+export const coralPink = naturalTexture([220, 142, 157]);
+export const coralBlue = naturalTexture([108, 183, 184]);
+export const whiteStone = naturalTexture([232, 232, 223], 'slate');
+export const blackTile = naturalTexture([70, 81, 85], 'roof');
+export const jadeTile = naturalTexture([87, 141, 129], 'roof');
+export const vermilion = naturalTexture([167, 71, 54], 'roof');
+export const gravel = naturalTexture([196, 191, 174]);
+export const palmLeaves = naturalTexture([100, 142, 89]);

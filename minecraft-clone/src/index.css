@@ -351,3 +351,7 @@ dd { margin: 5px 0 0; font-size: 12px; color: #aabdaf; }
 
 .tour-hud .music-current { display:flex; flex-direction:column; gap:4px; }
 .tour-title small { font-size:11px; color:#dfebdd; }
+
+/* Expanded map catalog: creation controls stay reachable while browsing. */
+.map-options { align-self:start; position:sticky; top:0; }
+@media(max-width:680px) { .map-options { order:-1; position:static; } }

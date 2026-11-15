@@ -1,11 +1,11 @@
 import { MAP_CATALOG,mapChoiceQuery,randomSeed } from './mapCatalog';
 import { listWorlds,safeWorldQuery } from './transfer';
 import { libraryWorlds } from './library';
-import { terrainKey } from './mapConfig';
+import { MAP_TYPES, terrainKey } from './mapConfig';
 
-test('six map choices use integrated scenery or their existing building worlds',()=>{
-  expect(MAP_CATALOG).toHaveLength(6);
-  for(const id of ['forest','meadow','islands','snow']){
+test('all map choices use integrated scenery or their existing building worlds',()=>{
+  expect(MAP_CATALOG).toHaveLength(Object.keys(MAP_TYPES).length+2);
+  for(const id of Object.keys(MAP_TYPES)){
     const q=mapChoiceQuery(id,' my garden ',150);
     expect(new URLSearchParams(q).get('gen')).toBe('2');
     expect(new URLSearchParams(q).get('world')).toBe('my garden');

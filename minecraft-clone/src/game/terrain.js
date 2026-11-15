@@ -1,3 +1,5 @@
+import { EXPANSION_IDS } from './expansionCatalog.js';
+import { generateThemedTerrain } from './themedTerrain.js';
 import { mapConfig, mapLimit } from './mapConfig.js';
 import { addLandmarks } from './landmarks.js';
 import { scenicHeight } from './scenicTerrain.js';
@@ -16,6 +18,7 @@ export function randomAt(seed, x, z) {
 }
 export function generateTerrain(seed = 'willow', options = {}) {
   const config=mapConfig(options),limit=mapLimit(config),kind=config.mapType;
+  if(EXPANSION_IDS.includes(kind))return generateThemedTerrain(seed,config,hashSeed(seed));
   const salt = hashSeed(seed), cubes = [], heights = new Map(), water = [], flowers = [], occupied = new Set();
   const phase = (salt % 1000) / 157;
   const add = (x,y,z,texture) => {
