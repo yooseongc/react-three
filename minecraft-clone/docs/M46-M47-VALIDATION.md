@@ -45,4 +45,7 @@
 
 ## 배포
 
-커밋·푸시·배포 진행 중.
+- 소스 `65cd6c9` main 푸시 완료, gh-pages `d519bda4c585e4febb3e28317ccdd3539f39263f` 게시.
+- [Pages 배포 성공](https://github.com/yooseongc/react-three/actions/runs/43776547821).
+- 공개 번들 `index-Ch9tFKqk.js` 확인. 공개 사막 감상에서 임시 난수 고정으로 모래바람 시작·강도 상승 확인, 페이지/WebGL 오류 0.
+- [공개 사이트](https://yooseongc.github.io/react-three/).
