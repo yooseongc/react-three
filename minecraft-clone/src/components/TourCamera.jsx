@@ -8,7 +8,10 @@ import { playerView } from '../game/navigation';
 
 export default function TourCamera(){
  const route=useMemo(()=>createTourRoute(landscape),[]);
- const cursor=useRef(route.shots[0].index),seek=useRef(tourView.seek),hold=useRef(3),lastStop=useRef(-1),first=useRef(true);
+ const preferred={forest:'sailboat',meadow:'windmill',islands:'lighthouse',snow:'cabin'}[landscape.mapType];
+ const highlights=route.shots.filter(s=>s.stop.type===preferred);
+ const opening=highlights.length?highlights:route.shots;
+ const cursor=useRef(opening[Math.floor(Math.random()*opening.length)].index),seek=useRef(tourView.seek),hold=useRef(3),lastStop=useRef(-1),first=useRef(true);
  const aim=useMemo(()=>new PerspectiveCamera(),[]);
  useEffect(()=>{useStore.getState().setReady(true);},[]);
  useFrame(({camera,gl},delta)=>{
@@ -29,8 +32,9 @@ export default function TourCamera(){
   else if(playing)camera.quaternion.slerp(aim.quaternion,1-Math.exp(-Math.min(delta,.05)*1.4));
   Object.assign(playerView,{x:camera.position.x,y:camera.position.y-1.62,z:camera.position.z,heading:camera.rotation.y});
   tourView.name=pose.name;tourView.shot=cursor.current;
-  gl.domElement.dataset.tour='true';gl.domElement.dataset.tourCursor=cursor.current.toFixed(3);
+  gl.domElement.dataset.tour='true';gl.domElement.dataset.tourRevision=String(useStore.getState().tourRevision||0);gl.domElement.dataset.mapType=landscape.mapType;gl.domElement.dataset.seed=landscape.seed;gl.domElement.dataset.tourCursor=cursor.current.toFixed(3);
   gl.domElement.dataset.position=camera.position.toArray().map(n=>n.toFixed(3)).join(',');
+  gl.domElement.dataset.geometries=String(gl.info.memory?.geometries||0);
   gl.info.reset();
  });
  return null;

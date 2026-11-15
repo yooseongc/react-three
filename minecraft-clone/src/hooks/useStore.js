@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { isTour } from '../game/tourSession';
+import { chooseTourScene } from '../game/tourScenes';
 import { BLOCK_TYPES, ALL_BLOCK_TYPES, loadWorld, STORAGE_KEY, validPosition } from '../game/world';
 import { landscape, landscapeSeed } from '../game/landscape';
 import { serializeTerrain, restoreTerrain } from '../game/terrain';
@@ -42,6 +43,7 @@ if (isTour) initial = { cubes: landscape.cubes, canSave: false, notice: '' };
 let settings;
 try { settings = loadSettings(localStorage); } catch { settings = cleanSettings(null); }
 
+const firstTourScene=isTour?{...chooseTourScene(),mapType:activeMap.mapType}:null;
 export const useStore = create((set, get) => ({
   ...initial,
   world: createVoxelWorld(initial.cubes),
@@ -49,7 +51,9 @@ export const useStore = create((set, get) => ({
   palettePage: 0,
   flying: false,
   ...settings,
-  ...(isTour ? {dayCycle:true,weatherMode:'auto',timeOfDay:9} : {}),
+  ...(isTour ? {dayCycle:true,weatherMode:firstTourScene.weather,timeOfDay:firstTourScene.hour} : {}),
+  tourScene:firstTourScene,
+  tourRevision:0,
   settingsNotice: '',
   updateSettings: patch => {
     const next = cleanSettings({ ...get(), ...patch });

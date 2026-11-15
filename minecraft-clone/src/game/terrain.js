@@ -1,5 +1,7 @@
 import { mapConfig, mapLimit } from './mapConfig.js';
 import { addLandmarks } from './landmarks.js';
+import { scenicHeight } from './scenicTerrain.js';
+import { addScenicFeatures } from './scenicFeatures.js';
 export const TERRAIN_VERSION = 1;
 export const WATER_LEVEL = 2.8;
 export function hashSeed(text) {
@@ -33,36 +35,37 @@ export function generateTerrain(seed = 'willow', options = {}) {
     // Generator 2 is opt-in: old worlds keep their exact terrain and edit baseline.
     let rocky=false;
     if(config.generator===2) {
-      const river=Math.abs(x-(-14+8*Math.sin(z/15+phase)));
-      const pond=Math.hypot((x-20)/1.3,z+22);
-      const ridge=Math.hypot((x+30)/1.1,z-25);
-      if(ridge<11){height=Math.max(height,Math.round(5+(11-ridge)*.65));rocky=ridge<7;}
-      if(river<5)height=Math.min(height,Math.max(1,Math.round(river-1)));
-      if(pond<10)height=Math.min(height,Math.max(1,Math.round((pond-4)/1.5)));
+      height=scenicHeight(kind,x,z,phase,limit);
+      rocky=kind==='snow'?height>23:kind==='islands'?height>11:height>15;
     }
     // A broad clearing and two level trails connect the starting point to the biomes.
     const path = Math.min(Math.abs(x),Math.abs(z-10));
-    if(kind!=='islands' && path<5 && x<28 && (config.generator===1 || height>=4)) height = Math.round(height+(5-height)*Math.max(0,1-path/5));
+    if(config.generator===1 && kind!=='islands' && path<5 && x<28) height = Math.round(height+(5-height)*Math.max(0,1-path/5));
     if(config.generator===2&&Math.hypot(x,z-10)<5)height=5;
-    if(kind==='islands' && Math.hypot(x,z-10)<7)height=Math.max(height,Math.round(5-Math.hypot(x,z-10)/3));
+    if(config.generator===1 && kind==='islands' && Math.hypot(x,z-10)<7)height=Math.max(height,Math.round(5-Math.hypot(x,z-10)/3));
     heights.set(`${x},${z}`,height);
     for(let y=1;y<=height;y++) add(x,y,z,y===height?(rocky?'stone':kind==='snow'?'snow':height<=3?'sand':'grass'):y<height-2?'stone':'dirt');
     if(height+.5<WATER_LEVEL) water.push([x,WATER_LEVEL,z]);
-    if(kind!=='snow' && height>=4 && path>3 && randomAt(salt,x,z)>.975) flowers.push([x,height+.75,z]);
+    if(kind!=='snow' && height>=4 && path>3 && randomAt(salt,x,z)>(config.generator===2&&kind==='meadow'?.92:.975)) flowers.push([x,height+.75,z]);
   }
   // Trees are editable voxels, with empty trails and a clear spawn radius.
-  for(let x=-(limit-5);x<(kind==='forest'?25:limit-4);x+=5) for(let z=-(limit-5);z<limit-4;z+=5){
+  for(let gx=-(limit-5);gx<(kind==='forest'?(config.generator===1?25:limit*.55):limit-4);gx+=5) for(let gz=-(limit-5);gz<limit-4;gz+=5){
+    const x=gx+(config.generator===2?Math.floor(randomAt(salt+9,gx,gz)*3)-1:0),z=gz+(config.generator===2?Math.floor(randomAt(salt+8,gx,gz)*3)-1:0);
     const h=heights.get(`${x},${z}`);
-    if(h<4 || Math.abs(x)<5 || Math.abs(z-10)<5 || randomAt(salt,x,z)<(kind==='meadow'?.94:kind==='islands'?.68:.42)) continue;
-    const trunk=3+Math.floor(randomAt(salt+1,x,z)*2);
+    if(config.generator===1 ? (h<4||Math.abs(x)<5||Math.abs(z-10)<5||randomAt(salt,x,z)<(kind==='meadow'?.94:kind==='islands'?.68:.42)) : (h<4||h>23||Math.hypot(x,z-10)<8||randomAt(salt,x,z)<(kind==='meadow'?(.88+.09*Math.sin(x/14)*Math.cos(z/16)):kind==='islands'?.6:kind==='snow'?.62:.32)))continue;
+    const trunk=config.generator===1?3+Math.floor(randomAt(salt+1,x,z)*2):(kind==='snow'?6:3)+Math.floor(randomAt(salt+1,x,z)*3);
     for(let y=1;y<=trunk;y++)add(x,h+y,z,'log');
+    if(config.generator===2 && kind==='snow'){
+      for(let dy=2;dy<=trunk+2;dy++){const r=Math.max(0,Math.ceil((trunk+2-dy)/2));for(let dx=-r;dx<=r;dx++)for(let dz=-r;dz<=r;dz++){if(Math.abs(dx)+Math.abs(dz)>r+1||(!dx&&!dz&&dy<=trunk))continue;add(x+dx,h+dy,z+dz,dy%2===0?'snow':'leaves');}}
+      continue;
+    }
     for(let dx=-2;dx<=2;dx++)for(let dz=-2;dz<=2;dz++)for(let dy=0;dy<=2;dy++){
       if(Math.abs(dx)+Math.abs(dz)+dy>4 || (dx===0&&dz===0&&dy===0))continue;
       add(x+dx,h+trunk+dy,z+dz,'leaves');
     }
   }
   const terrain={seed:String(seed),...config,cubes,heights,water,flowers};
-  return config.generator===2 ? addLandmarks(terrain,salt) : terrain;
+  return config.generator===2 ? addScenicFeatures(addLandmarks(terrain,salt),salt) : terrain;
 }
 
 // Saves contain only edits relative to this version of the deterministic generator.

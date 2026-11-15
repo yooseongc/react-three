@@ -11,7 +11,7 @@ export function addLandmarks(terrain, salt) {
       if(Math.abs(x)>limit-8||Math.abs(z)>limit-10||Math.hypot(x,z-10)<13||sites.some(s=>Math.hypot(s.x-x,s.z-z)<21))continue;
       const hs=[];for(let dx=-4;dx<=4;dx++)for(let dz=-4;dz<=4;dz++)hs.push(heights.get(`${x+dx},${z+dz}`));
       const lo=Math.min(...hs),hi=Math.max(...hs);
-      if(hi-lo>5||hi<4||(mapType!=='islands'&&lo<3))continue;
+      if(hi-lo>7||hi<4||(mapType!=='islands'&&lo<3))continue;
       const score=Math.hypot(x-tx,z-tz)+(hi-lo)*2+((salt+x*13+z*7)>>>0)%7*.1;
       if(!best||score<best.score)best={x,z,floor:hi,score};
     }
@@ -19,7 +19,7 @@ export function addLandmarks(terrain, salt) {
     const {x,z,floor:f}=best,type=index%3===0?'cabin':index%3===1?'gazebo':'ruin';
     // Clear branches and provide a solid foundation; original terrain outside this pad stays intact.
     for(let dx=-7;dx<=7;dx++)for(let dz=-7;dz<=7;dz++){
-      for(let y=f+1;y<=30;y++)blocks.delete([x+dx,y,z+dz].join(','));
+      for(let y=f+1;y<=48;y++)blocks.delete([x+dx,y,z+dz].join(','));
       if(Math.abs(dx)<=4&&Math.abs(dz)<=4){
         for(let y=(heights.get(`${x+dx},${z+dz}`)||1)+1;y<f;y++)put(x+dx,y,z+dz,'stone');
         put(x+dx,f,z+dz,type==='ruin'?'slate':'wood');
@@ -62,7 +62,8 @@ export function addLandmarks(terrain, salt) {
     sites.push({id:`site-${index}`,type,x,z,y:f+.5,name:type==='cabin'?names[mapType]:type==='gazebo'?'바람 정자':'이끼 낀 돌터'});
   });
   // A low boardwalk crosses the winding river near the spawn trail.
-  const river=terrain.water.filter(([,,z])=>z===10).map(([x])=>x).filter(x=>x<0);
+  const waterXs=terrain.water.filter(([,,z])=>z===10).map(([x])=>x).filter(x=>x<0).sort((a,b)=>b-a);
+  const river=[];for(const x of waterXs){if(river.length&&x!==river.at(-1)-1)break;river.push(x);}
   if(river.length){
     const left=Math.min(...river)-3,right=Math.max(...river)+3;
     for(let x=left;x<=right;x++)for(let z=9;z<=11;z++){

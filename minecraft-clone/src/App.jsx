@@ -13,9 +13,11 @@ import Cubes from './components/Cubes';
 import Hud from './components/Hud';
 import { useStore } from './hooks/useStore';
 import Decorations from './components/Decorations';
+import Flowers from './components/Flowers';
 import Water from './components/Water';
 import BlockParticles from './components/BlockParticles';
 import LanternLights from './components/LanternLights';
+import LighthouseBeacon from './components/LighthouseBeacon';
 import DiscoveryHint from './components/DiscoveryHint';
 import NowPlaying from './components/NowPlaying';
 
@@ -34,6 +36,7 @@ class SceneErrorBoundary extends React.Component {
 }
 
 export default function App() {
+  const tourRevision = useStore(state => state.tourRevision);
   const cubes = useStore(state => state.cubes);
   const shadows = useStore(state => state.shadows);
   const touchMode = useStore(state => state.touchMode);
@@ -74,14 +77,18 @@ export default function App() {
       <LandscapeMotion />
       <Weather />
       <DayNight />
+      <React.Fragment key={tourRevision}>
       <Ground />
       <Cubes />
       <LanternLights />
+      <LighthouseBeacon />
       <Decorations />
+      <Flowers />
       <Wildlife />
       <Water />
       <BlockParticles />
       {isTour ? <TourCamera /> : <Player />}
+      </React.Fragment>
     </Canvas>
     {isTour ? <TourHud /> : <Hud />}
     {!isTour && <DiscoveryHint />}

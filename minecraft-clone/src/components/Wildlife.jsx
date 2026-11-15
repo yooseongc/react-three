@@ -44,11 +44,41 @@ const sheepParts=[
   [[-.22,.17,-.25],[.14,.32,.15],'face',1],[[.22,.17,-.25],[.14,.32,.15],'face',-1],
   [[-.22,.17,.25],[.14,.32,.15],'face',-1],[[.22,.17,.25],[.14,.32,.15],'face',1],
 ];
-const models={rabbit:rabbitParts,duck:duckParts,fox:foxParts,sheep:sheepParts};
+const deerParts=[
+ [[0,.85,0],[.5,.48,.85],'coat'],[[0,1.25,-.42],[.28,.7,.26],'coat'],[[0,1.63,-.53],[.3,.28,.43],'coat'],
+ [[0,1.57,-.78],[.21,.16,.12],'dark'],[[-.24,1.75,-.45],[.24,.12,.12],'cream'],[[.24,1.75,-.45],[.24,.12,.12],'cream'],
+ [[-.15,1.68,-.65],[.03,.05,.04],'eye'],[[.15,1.68,-.65],[.03,.05,.04],'eye'],
+ [[-.12,1.98,-.45],[.06,.55,.06],'horn'],[[.12,1.98,-.45],[.06,.55,.06],'horn'],
+ [[-.23,2.07,-.45],[.25,.06,.06],'horn'],[[.23,2.07,-.45],[.25,.06,.06],'horn'],
+ [[-.34,2.17,-.45],[.06,.24,.06],'horn'],[[.34,2.17,-.45],[.06,.24,.06],'horn'],
+ [[0,.88,.5],[.18,.2,.19],'cream'],
+ ...[-1,1].flatMap(x=>[-1,1].map(z=>[[x*.18,.34,z*.3],[.1,.68,.12],'coat',x*z])),
+];
+const horseParts=[
+ [[0,1,0],[.68,.62,1.22],'horse'],[[0,1.32,-.53],[.4,.75,.38],'horse'],[[0,1.74,-.75],[.4,.42,.67],'horse'],
+ [[0,1.63,-1.08],[.4,.2,.13],'dark'],[[-.14,2,-.56],[.12,.15,.14],'horse'],[[.14,2,-.56],[.12,.15,.14],'horse'],
+ [[-.21,1.8,-.91],[.03,.06,.06],'eye'],[[.21,1.8,-.91],[.03,.06,.06],'eye'],
+ [[0,1.45,-.29],[.16,.6,.12],'mane'],[[0,1.06,.76],[.23,.8,.21],'mane'],
+ ...[-1,1].flatMap(x=>[-1,1].map(z=>[[x*.24,.38,z*.44],[.16,.76,.17],'horse',x*z])),
+ ...[-1,1].flatMap(x=>[-1,1].map(z=>[[x*.24,.08,z*.44],[.19,.14,.21],'dark',x*z])),
+];
+const gullParts=[
+ [[0,0,0],[.28,.26,.55],'white'],[[0,.14,-.3],[.24,.24,.23],'white'],[[0,.12,-.49],[.14,.08,.2],'bill'],
+ [[-.125,.19,-.35],[.02,.04,.04],'eye'],[[.125,.19,-.35],[.02,.04,.04],'eye'],
+ [[-.5,.02,0],[.8,.045,.3],'white',2],[[.5,.02,0],[.8,.045,.3],'white',-2],
+ [[-.94,.02,.04],[.18,.045,.23],'dark',2],[[.94,.02,.04],[.18,.045,.23],'dark',-2],[[0,0,.36],[.28,.06,.23],'white'],
+];
+const fishParts=[
+ [[0,0,0],[.2,.22,.6],'fish'],[[0,0,-.32],[.17,.18,.12],'fish'],
+ [[-.105,.04,-.21],[.025,.05,.05],'eye'],[[.105,.04,-.21],[.025,.05,.05],'eye'],
+ [[0,0,.42],[.35,.28,.09],'fin',3],[[0,.15,.03],[.045,.15,.24],'fin'],[[-.16,-.02,-.02],[.18,.04,.2],'fin'],[[.16,-.02,-.02],[.18,.04,.2],'fin'],
+];
+const models={rabbit:rabbitParts,duck:duckParts,fox:foxParts,sheep:sheepParts,deer:deerParts,horse:horseParts,gull:gullParts,fish:fishParts};
 const maxParts=Math.max(...Object.values(models).map(parts=>parts.length));
 const palettes=Array.from({length:WILDLIFE_LIMIT},(_,id)=>Object.fromEntries(Object.entries({
   body:id<8 ? ['#c8ad8c','#e5ddd0','#a38c76'][id%3] : id%2 ? '#c7aa76' : '#b6ada0',
   head:id%2?'#b89a69':'#3e735c',wing:'#786c55',bill:'#e3aa48',eye:'#202b29',pink:'#d99f9d',tail:'#eee8db',
+  coat:'#ba9168',horn:'#76634a',horse:id%2?'#b58b63':'#785644',mane:'#3d352c',white:'#eeeede',fish:id%2?'#e8ad65':'#83c7c2',fin:'#d9c17d',
   fox:id%2?'#c4783c':'#d18a46',cream:'#eee0c6',dark:'#594334',wool:id%2?'#d3cbc0':'#efe6d5',face:'#8c7b67',
 }).map(([key,value])=>[key,new Color(value)])));
 
@@ -75,9 +105,11 @@ export default function Wildlife() {
       const bounce=animal.type==='rabbit' ? (moving?Math.abs(Math.sin(gait))*.08:Math.sin(animal.phase*2)*.008) : animal.type==='duck'?Math.sin(animal.phase*2)*.025:Math.sin(gait)*.008;
       const c=Math.cos(animal.heading),s=Math.sin(animal.heading);
       for(const [pos,size,color,limb] of models[animal.type]){
-        const [x,y,z]=pos;
+        let [x,y,z]=pos;
+        if(animal.type==='fish'&&limb===3)x+=Math.sin(gait)*.08;
+        if(animal.type==='gull'&&limb)y+=Math.sin(gait*.6)*Math.sign(limb)*x*.3;
         transform.position.set(animal.x+x*c+z*s,animal.y+y+bounce+(moving&&limb?Math.sin(gait)*limb*.025:0),animal.z-x*s+z*c);
-        transform.rotation.set(0,animal.heading,0);transform.scale.set(...size);transform.updateMatrix();
+        transform.rotation.set(moving&&limb&&Math.abs(limb)===1?Math.sin(gait)*limb*.25:0,animal.heading,animal.type==='gull'&&limb?Math.sin(gait*.6)*Math.sign(limb)*.35:0);transform.scale.set(...size);transform.updateMatrix();
         mesh.current.setMatrixAt(count,transform.matrix);mesh.current.setColorAt(count,palettes[animal.id][color]);count++;
       }
     }

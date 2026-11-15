@@ -17,7 +17,7 @@ test('tour camera looks toward scenery, advances on play, and freezes when pause
   act(()=>root.render(<TourCamera/>));
   const tick=useFrame.mock.calls.at(-1)[0],camera=new PerspectiveCamera(),gl={domElement:{dataset:{}},info:{reset:vi.fn()}};
   tick({camera,gl},.016);
-  const route=createTourRoute(landscape),pose=tourPose(route,route.shots[0].index);
+  const route=createTourRoute(landscape),pose=tourPose(route,Number(gl.domElement.dataset.tourCursor));
   const direction=camera.getWorldDirection(new Vector3()),toward=pose.target.clone().sub(camera.position).normalize();
   expect(direction.dot(toward)).toBeGreaterThan(.999);
   const start=camera.position.clone();state.playing=true;

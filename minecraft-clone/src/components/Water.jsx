@@ -23,6 +23,16 @@ export default function Water() {
       }
       indices.push(start,start+1,start+2,start,start+2,start+3);
     }
+    // Ocean continues beyond the editable map so coastal views meet a horizon.
+    if(['forest','islands'].includes(landscape.mapType)){
+      const edge=landscape.size/2-.5,far=edge+180;
+      const regions=[[-far,-edge,-far,far],[edge,far,-far,far],[-edge,edge,-far,-edge],[-edge,edge,edge,far]];
+      for(const [x0,x1,z0,z1] of regions)for(let x=x0;x<x1;x+=8)for(let z=z0;z<z1;z+=8){
+        const start=positions.length/3;
+        for(const [xx,zz] of [[x,z],[x,Math.min(z+8,z1)],[Math.min(x+8,x1),Math.min(z+8,z1)],[Math.min(x+8,x1),z]]){positions.push(xx,WATER_LEVEL,zz);normals.push(0,1,0);uvs.push(xx/6,zz/6);}
+        indices.push(start,start+1,start+2,start,start+2,start+3);
+      }
+    }
     const g=new BufferGeometry();g.setAttribute('position',new Float32BufferAttribute(positions,3));
     g.setAttribute('normal',new Float32BufferAttribute(normals,3));g.setAttribute('uv',new Float32BufferAttribute(uvs,2));g.setIndex(indices);
     g.computeBoundingSphere();g.boundingSphere.radius += MAX_WAVE_HEIGHT;return g;
