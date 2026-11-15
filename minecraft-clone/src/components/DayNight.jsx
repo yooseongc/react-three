@@ -1,3 +1,5 @@
+import { undergroundState } from '../game/underground';
+import { natureUniforms,natureSkyShader } from '../game/naturalEvents';
 import { useEffect, useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { BackSide, Color, Vector3 } from 'three';
@@ -10,6 +12,7 @@ import { weatherUniforms } from '../game/weatherMaterials';
 const vertexShader = `varying vec3 direction;
 void main(){ direction = position; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }`;
 const fragmentShader = `varying vec3 direction;
+uniform float natureTime; uniform float auroraStrength; uniform float rainbowStrength;
 uniform vec3 zenith; uniform vec3 horizon; uniform vec3 sun; uniform float daylight;
 ${cloudShader}
 void main(){
@@ -21,6 +24,7 @@ void main(){
   color = mix(color,vec3(.8,.88,1.0),moonDisc * (1.0-daylight));
   vec3 cloudColor = mix(horizon * .7, mix(horizon,vec3(.92,.96,1.),.65),daylight) * (1.-weatherCloud*.35);
   color = mix(color,cloudColor,cloudCover(d));
+  ${natureSkyShader}
   gl_FragColor=vec4(color,1.0);
   #include <tonemapping_fragment>
   #include <colorspace_fragment>
@@ -28,13 +32,13 @@ void main(){
 export default function DayNight() {
   const selectedHour = useStore(s => s.timeOfDay);
   const sky = useRef(); const stars = useRef(); const ambient = useRef(); const light = useRef(); const moon = useRef();
-  const wasPlaying = useRef(false);
+  const wasPlaying = useRef(false),caveShade=useRef(0);
   useEffect(() => { worldClock.hour = selectedHour; }, [selectedHour]);
   const colors = useMemo(() => ({ night: new Color('#101d38'), day: new Color('#72b9e5'),
     nightFog: new Color('#34465f'), dayFog: new Color('#c4d8cb'), dusk: new Color('#eea16d'), noon: new Color('#fff4dc'),
     moon: new Color('#bbcdf5'), white: new Color('#ffffff'), mistDay:new Color('#c9d4d4'), mistNight:new Color('#384452'), mistShade:new Color() }), []);
   const uniforms = useMemo(() => ({ zenith: { value: new Color() }, horizon: { value: new Color() },
-    sun: { value: new Vector3() }, daylight: { value: 1 }, ...motionUniforms, ...weatherUniforms }), []);
+    sun: { value: new Vector3() }, daylight: { value: 1 }, ...motionUniforms, ...weatherUniforms, ...natureUniforms }), []);
   const starPositions = useMemo(() => {
     const positions = new Float32Array(600 * 3);
     let seed = 781;
@@ -53,6 +57,7 @@ export default function DayNight() {
     const sample = sampleDay(worldClock.hour);
     const liveUniforms = sky.current.material.uniforms;
     liveUniforms.m8Time.value = motionUniforms.m8Time.value;
+    for(const name of Object.keys(natureUniforms))liveUniforms[name].value=natureUniforms[name].value;
     liveUniforms.m8Strength.value = motionUniforms.m8Strength.value;
     const overcast=weatherUniforms.weatherCloud.value;
     const fog=weatherUniforms.weatherFog.value, snow=weatherUniforms.weatherSnow.value;
@@ -76,6 +81,10 @@ export default function DayNight() {
     light.current.position.set(camera.position.x + sample.sun[0]*.4, camera.position.y + sample.sun[1]*.4, camera.position.z + sample.sun[2]*.4);
     moon.current.intensity = sample.stars * .45*(1-overcast*.7);
     moon.current.position.set(-sample.sun[0], -sample.sun[1], -sample.sun[2]);
+    caveShade.current+=((undergroundState.inside?1:0)-caveShade.current)*(1-Math.exp(-Math.min(delta,.1)*3));
+    ambient.current.intensity*=1-caveShade.current*.82;
+    light.current.intensity*=1-caveShade.current*.98;moon.current.intensity*=1-caveShade.current;
+    if(caveShade.current>.01){scene.fog.color.lerp(colors.nightFog,caveShade.current*.85);scene.fog.near=scene.fog.near*(1-caveShade.current)+8*caveShade.current;scene.fog.far=scene.fog.far*(1-caveShade.current)+40*caveShade.current;}
     light.current.target.position.copy(camera.position);
     light.current.target.updateMatrixWorld();
     gl.domElement.dataset.timeOfDay = worldClock.hour.toFixed(4);

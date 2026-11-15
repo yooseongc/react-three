@@ -6,7 +6,7 @@ import { hashSeed } from './terrain';
 
 export function newTourQuery(returnQuery='?', random=Math.random) {
  const types=Object.keys(MAP_TYPES),mapType=types[Math.floor(random()*types.length)];
- return terrainQuery(randomSeed(),{mapType,size:100,generator:2})+'&tour=1&return='+encodeURIComponent(safeWorldQuery(returnQuery)||'?');
+ return terrainQuery(randomSeed(),{mapType,size:100,generator:3})+'&tour=1&return='+encodeURIComponent(safeWorldQuery(returnQuery)||'?');
 }
 export function tourReturnQuery(search) {return safeWorldQuery(new URLSearchParams(search).get('return'))||'?';}
 export const tourView={name:'',shot:0,seek:0};
@@ -18,7 +18,7 @@ export function createTourRoute(terrain) {
  const random=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296;};
  const sites=[...(terrain.sites||[])];
  for(let i=sites.length-1;i>0;i--){const j=Math.floor(random()*(i+1));[sites[i],sites[j]]=[sites[j],sites[i]];}
- const featured=sites.filter(s=>['sailboat','windmill','lighthouse','cabin','belltower','bath','market','mill','bungalow','observatory','shrine','moonGate','byeolseo'].includes(s.type));
+ const featured=sites.filter(s=>['sailboat','windmill','lighthouse','cabin','belltower','bath','market','mill','bungalow','observatory','shrine','moonGate','byeolseo','cave'].includes(s.type));
  const stops=[...featured,...sites.filter(s=>!featured.includes(s))].slice(0,6).map(s=>({...s}));
  if(terrain.water.length){const w=terrain.water[Math.floor(random()*terrain.water.length)];stops.push({x:w[0],y:w[1],z:w[2],name:'물빛을 따라서'});}
  if(stops.length<2)stops.push({x:-15,y:5,z:0,name:'바람이 지나는 길'},{x:15,y:5,z:15,name:'느린 산책'});

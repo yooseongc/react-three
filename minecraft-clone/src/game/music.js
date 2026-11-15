@@ -16,7 +16,7 @@ export class MusicPlayer {
     this.status={ready:false,loading:false,error:'',title:'',artist:'',key:'',levels:{}};
     this.active=false;this.volume=0;this.time=0;
   }
-  release(slot){slot.alive=false;slot.audio.pause();slot.audio.removeAttribute('src');slot.audio.load();slot.source.disconnect();slot.gain.disconnect();this.slots=this.slots.filter(s=>s!==slot);}
+  release(slot){slot.alive=false;slot.audio.pause();slot.audio.removeAttribute('src');slot.audio.load();slot.source.disconnect();slot.filter?.disconnect();slot.gain.disconnect();this.slots=this.slots.filter(s=>s!==slot);}
   play(slot){
     if(slot.pending||!slot.audio.paused||!this.active)return;
     slot.pending=true;
@@ -29,7 +29,7 @@ export class MusicPlayer {
       this.failed=slot.key;this.status.error='배경음 재생에 실패했습니다. 연결을 확인하고 다시 불러오세요.';this.release(slot);
     });
   }
-  tick({hour=9,weather='clear',sheltered=false}={},volume=0,active=false,now=performance.now()) {
+  tick({hour=9,weather='clear',sheltered=false,underground=false}={},volume=0,active=false,now=performance.now()) {
     const dt=Math.min(.25,Math.max(0,(now-this.time)/1000));this.time=now;
     this.active=active&&volume>0;this.volume=volume*(sheltered?.65:1);
     if(!this.active){for(const s of this.slots){s.gain.gain.cancelScheduledValues(this.context.currentTime);s.gain.gain.setValueAtTime(0,this.context.currentTime);s.audio.pause();}this.status.levels={};return;}
@@ -41,8 +41,8 @@ export class MusicPlayer {
       for(const s of [...this.slots])if(s!==keep)this.release(s);
       const audio=this.createAudio(this.base+track.localPath.replace(/^\//,''));
       audio.preload='auto';audio.loop=true;
-      const source=this.context.createMediaElementSource(audio),gain=this.context.createGain();gain.gain.value=0;source.connect(gain);gain.connect(this.context.destination);
-      target={audio,source,gain,key,track,weight:0,ready:false,pending:false,alive:true};
+      const source=this.context.createMediaElementSource(audio),gain=this.context.createGain();gain.gain.value=0;const filter=this.context.createBiquadFilter?.();if(filter){filter.type='lowpass';source.connect(filter);filter.connect(gain);}else source.connect(gain);gain.connect(this.context.destination);
+      target={audio,source,gain,filter,key,track,weight:0,ready:false,pending:false,alive:true};
       audio.onerror=()=>{if(!target.alive)return;this.failed=key;this.status.error='배경음 파일을 불러오지 못했습니다. 다시 불러오기를 눌러주세요.';this.release(target);};
       this.slots.push(target);this.status.error='';
     }
@@ -51,6 +51,7 @@ export class MusicPlayer {
     for(const s of [...this.slots]){
       const desired=ready?(s===target?1:0):(s.ready?1:0);
       s.weight=Math.max(0,Math.min(1,s.weight+Math.sign(desired-s.weight)*Math.min(Math.abs(desired-s.weight),dt/3)));
+      s.filter?.frequency.setTargetAtTime(underground?1400:20000,this.context.currentTime,.5);
       s.gain.gain.setTargetAtTime(s.weight*this.volume,this.context.currentTime,.08);
       if(ready&&s!==target&&s.weight===0)this.release(s);
     }

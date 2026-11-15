@@ -1,3 +1,4 @@
+import { natureUniforms } from '../game/naturalEvents';
 import { useEffect, useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { PerspectiveCamera } from 'three';
@@ -27,6 +28,7 @@ export default function TourCamera(){
    }
   }
   const pose=tourPose(route,cursor.current);
+  if((natureUniforms.auroraStrength.value>.1||natureUniforms.rainbowStrength.value>.1)&&natureUniforms.natureTime.value%40<14)pose.target.y=Math.max(pose.target.y,pose.position.y+10);
   camera.position.copy(pose.position);aim.position.copy(pose.position);aim.lookAt(pose.target);
   if(first.current){camera.quaternion.copy(aim.quaternion);first.current=false;}
   else if(playing)camera.quaternion.slerp(aim.quaternion,1-Math.exp(-Math.min(delta,.05)*1.4));

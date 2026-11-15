@@ -14,5 +14,5 @@ export function mapChoiceQuery(id,seed,size){
   const choice=MAP_CATALOG.find(c=>c.id===id);if(!choice)throw Error('맵을 선택하세요.');
   if(choice.query)return choice.query;
   const value=Array.from(seed.trim()).slice(0,64).join('');if(!value)throw Error('시드를 입력하세요.');
-  return terrainQuery(value,{mapType:id,size,generator:2});
+  return terrainQuery(value,{mapType:id,size,generator:3});
 }

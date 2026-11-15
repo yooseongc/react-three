@@ -1,3 +1,4 @@
+import { undergroundState } from '../game/underground';
 import { useEffect } from 'react';
 import { useStore } from './useStore';
 import { ensureAmbience, setAmbience } from '../game/ambience';
@@ -15,7 +16,7 @@ export function useAmbience() {
       const state=useStore.getState();
       const audible=state.playing && state.ambienceEnabled && !document.hidden;
       if(audible)ensureAmbience();
-      setAmbience({hour:worldClock.hour,weather:weatherState.current,sheltered:weatherState.sheltered},state.ambienceVolume,audible);
+      setAmbience({hour:worldClock.hour,weather:weatherState.current,sheltered:weatherState.sheltered,underground:undergroundState.inside},state.ambienceVolume,audible);
     },100);
     return ()=>{
       clearInterval(timer);unsubscribe();window.removeEventListener('blur',silence);

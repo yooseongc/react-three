@@ -3,11 +3,18 @@ import { vi } from 'vitest';
 import { existsSync,statSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 function harness(){
- const audios=[],gains=[];
+ const audios=[],gains=[],filters=[];
  const context={currentTime:0,destination:{},createMediaElementSource:()=>({connect:vi.fn(),disconnect:vi.fn()}),createGain:()=>{const g={gain:{value:0,setTargetAtTime:vi.fn(),cancelScheduledValues:vi.fn(),setValueAtTime:vi.fn()},connect:vi.fn(),disconnect:vi.fn()};gains.push(g);return g;}};
+ context.createBiquadFilter=()=>{const f={frequency:{setTargetAtTime:vi.fn()},connect:vi.fn(),disconnect:vi.fn()};filters.push(f);return f;};
  const player=new MusicPlayer(context,url=>{const a={src:url,paused:true,play:vi.fn(function(){this.paused=false;return Promise.resolve();}),pause:vi.fn(function(){this.paused=true;}),removeAttribute:vi.fn(),load:vi.fn()};audios.push(a);return a;},'/react-three/');
- let time=0;return {player,audios,gains,tick:(scene={},volume=.5,active=true)=>player.tick(scene,volume,active,time+=250)};
+ let time=0;return {player,audios,gains,filters,tick:(scene={},volume=.5,active=true)=>player.tick(scene,volume,active,time+=250)};
 }
+test('underground music softens and restores its high frequencies without restarting',async()=>{
+ const {player,audios,filters,tick}=harness();tick({underground:true});await Promise.resolve();tick({underground:true});
+ expect(filters[0].frequency.setTargetAtTime).toHaveBeenLastCalledWith(1400,0,.5);
+ tick({underground:false});expect(filters[0].frequency.setTargetAtTime).toHaveBeenLastCalledWith(20000,0,.5);expect(audios).toHaveLength(1);
+ player.dispose();expect(filters[0].disconnect).toHaveBeenCalled();
+});
 test('all 20 slots resolve to real local audio, with exact time boundaries',()=>{
  expect([4.99,5,9.99,10,16.99,17,19.99,20,24].map(musicTime)).toEqual(['night','morning','morning','day','day','sunset','sunset','night','night']);
  expect(musicTracks).toHaveLength(20);expect(new Set(musicTracks.map(t=>t.localPath)).size).toBe(20);

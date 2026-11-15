@@ -4,6 +4,9 @@ import DayNight from './components/DayNight';
 import LandscapeMotion from './components/LandscapeMotion';
 import Weather from './components/Weather';
 import Wildlife from './components/Wildlife';
+import UndergroundEffects from './components/UndergroundEffects';
+import NaturalEvents from './components/NaturalEvents';
+import LivingDetails from './components/LivingDetails';
 import ThemeEffects from './components/ThemeEffects';
 import Ground from './components/Ground';
 import Player from './components/Player';
@@ -81,6 +84,9 @@ export default function App() {
       <React.Fragment key={tourRevision}>
       <Ground />
       <ThemeEffects />
+      <LivingDetails />
+      <NaturalEvents />
+      <UndergroundEffects />
       <Cubes />
       <LanternLights />
       <LighthouseBeacon />

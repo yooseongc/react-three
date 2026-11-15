@@ -102,6 +102,11 @@ export function stepPlayer(player, input, yaw, delta, cubes) {
       p[axis] = Math.max(-WORLD_LIMIT, Math.min(WORLD_LIMIT, p[axis] + velocity * h));
       for (const { pos } of nearbyBlocks(cubes, p)) {
         if (overlapsPlayer(pos, p, 0)) {
+          const rise=pos[1]+.5-p.y;
+          if(input.autoStep&&!input.flying&&p.grounded&&rise>0&&rise<=1.01){
+            const raised={...p,y:pos[1]+.5};
+            if(!nearbyBlocks(cubes,raised).some(c=>overlapsPlayer(c.pos,raised,0))){p.y=raised.y;p.vy=0;continue;}
+          }
           p[axis] = pos[axis === 'x' ? 0 : 2] - Math.sign(velocity) * (0.5 + PLAYER_RADIUS);
         }
       }

@@ -14,7 +14,7 @@ import { raycastVoxels } from '../game/voxels';
 import { renderMetrics } from '../game/metrics';
 import { blockFeedback } from '../game/feedback';
 import { activeMap } from '../game/mapConfig';
-import { generationMs } from '../game/landscape';
+import { landscape, generationMs } from '../game/landscape';
 
 export default function Player() {
   const { camera, gl } = useThree();
@@ -99,7 +99,7 @@ export default function Player() {
     if (state.playing) {
       if (wasFlying.current !== state.flying) player.current.vy = 0;
       wasFlying.current = state.flying;
-      player.current = stepPlayer(player.current, { ...input.current, ...(state.touchMode?touchInput:{}), flying: state.flying }, heading.current, delta, state.world);
+      player.current = stepPlayer(player.current, { ...input.current, ...(state.touchMode?touchInput:{}), flying: state.flying, autoStep:landscape?.caves?.some(c=>Math.abs(player.current.x-c.x)<2&&player.current.z>=c.minZ-2&&player.current.z<=c.maxZ+2) }, heading.current, delta, state.world);
       input.current.jump = false;
       touchInput.jump = false;
     }
