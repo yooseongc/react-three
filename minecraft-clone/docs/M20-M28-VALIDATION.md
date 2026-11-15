@@ -64,4 +64,10 @@
 
 ## 배포
 
-구현 검증 완료. 실제 커밋 및 공개 배포 확인 결과를 추가할 예정.
+- 구현 커밋: 7c7fe61 (main 푸시 완료).
+- Pages 커밋: 70c50d8d288b17e1a73dcb0565b0a2d803683808.
+- [배포 작업 43665866860](https://github.com/yooseongc/react-three/actions/runs/43665866860): 성공.
+- 공개 번들 index-B9XCg8Rq.js / index-CzcCg5TB.css 로딩 확인.
+- 공개 사이트 15개 맵 이름과 세 정원 이름, 풍경 감상 재생/카메라 이동/일시정지 확인. 페이지 오류 0.
+- [공개 데모 — 벚꽃 신사부터 감상](https://yooseongc.github.io/react-three/?world=preview&map=shrine&gen=2&tour=1).
+- GitHub 관리형 Pages 작업의 Node 20 액션 경고는 호스팅 작업 내부 경고이며 앱의 Node 26 빌드와 별개.
