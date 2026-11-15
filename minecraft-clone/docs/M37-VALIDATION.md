@@ -33,4 +33,4 @@
 
 로컬 데모: http://127.0.0.1:4173/react-three/?world=willow&map=onsen&gen=4
 
-커밋·푸시·공개 배포 전.
+2026-11-15 공개 배포 완료. [배포 검증](M32-M44-DEPLOYMENT.md).
