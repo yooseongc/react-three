@@ -1,3 +1,5 @@
+import { freshWeatherEvent, advanceWeatherEvent, windAt, distantFlash } from '../game/weatherEvents';
+import { isTour } from '../game/tourSession';
 import { activeMap } from '../game/mapConfig';
 import { worldClock } from '../game/daylight';
 import { climateFor } from '../game/climate';
@@ -18,7 +20,11 @@ const softenSnow=shader=>{
 export default function Weather() {
   useAmbience();
   const world=useStore(s=>s.world);
+  const revision=useStore(s=>s.tourRevision);
   const roofs=useMemo(()=>roofHeights(world.blocks),[world]);
+  const event=useRef(freshWeatherEvent());
+  useEffect(()=>{event.current=freshWeatherEvent();},[revision]); const dust=useRef();
+  const drift=useRef({x:0,z:0});
   const rain=useRef(); const snow=useRef(); const clock=useRef(0);
   const schedule=useRef(null); const lastMode=useRef(null);
   if(!schedule.current)schedule.current=createWeatherSchedule(activeMap.mapType,useStore.getState().timeOfDay);
@@ -34,6 +40,8 @@ export default function Weather() {
     return value;
   },[]);
   useEffect(()=>()=>snowGeometry.dispose(),[snowGeometry]);
+  const dustGeometry=useMemo(()=>{const g=new BufferGeometry();g.setAttribute('position',new Float32BufferAttribute(new Float32Array(240*3),3));return g;},[]);
+  useEffect(()=>()=>dustGeometry.dispose(),[dustGeometry]);
   useEffect(()=>{
     weatherUniforms.weatherRoof.value.image.data=roofs;
     weatherUniforms.weatherRoof.value.needsUpdate=true;
@@ -47,30 +55,38 @@ export default function Weather() {
     schedule.current=advanceWeatherSchedule(schedule.current,delta,state.weatherMode==='auto' && state.playing && !document.hidden,Math.random,{mapType:activeMap.mapType,hour:worldClock.hour});
     const current=state.weatherMode==='auto' ? schedule.current.mode : state.weatherMode;
     weatherState.current=current;
+    const moving=state.playing && state.landscapeMotion && !document.hidden;
+    event.current=advanceWeatherEvent(event.current,{map:activeMap.mapType,weather:current,hour:worldClock.hour,delta,running:moving,enabled:state.landscapeMotion&&(state.weatherMode==='auto'||isTour)});
+    weatherState.event=event.current.kind;
+    const wind=windAt(clock.current,weatherState.rain,weatherState.snow,event.current);
+    weatherUniforms.weatherWind.value=state.landscapeMotion?wind.strength:0;
+    weatherUniforms.weatherFlash.value=moving?distantFlash(event.current):0;
+    weatherUniforms.weatherMist.value=event.current.kind==='seaMist'?event.current.strength:0;
+    weatherUniforms.weatherDust.value=event.current.kind==='sandstorm'?event.current.strength:0;
     // Settings preview transitions in the menu; falling rain remains paused there.
     Object.assign(weatherState,stepWeather(weatherState,current,document.hidden ? 0 : delta));
     weatherUniforms.weatherCloud.value=weatherState.cloud;
     weatherUniforms.weatherWet.value=weatherState.wet;
-    weatherUniforms.weatherFog.value=weatherState.fog;
+    weatherUniforms.weatherFog.value=Math.max(weatherState.fog,event.current.kind==='seaMist'?event.current.strength:0,event.current.kind==='blizzard'?event.current.strength*.7:0);
     weatherUniforms.weatherSnow.value=weatherState.snow;
     weatherState.sheltered=roofAt(roofs,camera.position.x,camera.position.z)>camera.position.y;
-    const moving=state.playing && state.landscapeMotion && !document.hidden;
-    if(moving)clock.current+=Math.min(delta,.1);
+    weatherUniforms.weatherRain.value=state.landscapeMotion?weatherState.rain:0;
+    if(moving){const dt=Math.min(delta,.1);clock.current+=dt;drift.current.x+=wind.x*dt;drift.current.z+=wind.z*dt;}
     rain.current.visible=state.landscapeMotion && weatherState.rain>.01;
     rain.current.material.opacity=weatherState.rain*.38;
     let visible=0;
     if(rain.current.visible){
       const positions=geometry.attributes.position.array;
       for(let i=0;i<DROP_COUNT;i++){
-        const x=camera.position.x+((i*17.31)%32)-16;
-        const z=camera.position.z+((i*9.17)%32)-16;
+        const x=camera.position.x+((i*17.31+drift.current.x*4)%32)-16;
+        const z=camera.position.z+((i*9.17+drift.current.z*4)%32)-16;
         const y=camera.position.y+12-((i*.731+clock.current*11)%22);
-        const bottom=Math.max(y-.65,roofAt(roofs,x,z));
+        const bottom=Math.max(y-.65,roofAt(roofs,x,z),roofAt(roofs,x+wind.x*.45,z+wind.z*.45));
         const show=y>bottom;
         if(show)visible++;
         const offset=i*6;
         positions[offset]=x;positions[offset+1]=y;positions[offset+2]=z;
-        positions[offset+3]=x;positions[offset+4]=show ? bottom : y;positions[offset+5]=z;
+        positions[offset+3]=show?x+wind.x*.45:x;positions[offset+4]=show ? bottom : y;positions[offset+5]=show?z+wind.z*.45:z;
       }
       geometry.attributes.position.needsUpdate=true;
     }
@@ -80,8 +96,8 @@ export default function Weather() {
     if(snow.current.visible){
       const positions=snowGeometry.attributes.position.array;
       for(let i=0;i<SNOW_COUNT;i++){
-        const x=camera.position.x+((i*13.37)%30)-15+Math.sin(clock.current*.6+i)*.45;
-        const z=camera.position.z+((i*7.19)%30)-15+Math.cos(clock.current*.45+i)*.35;
+        const x=camera.position.x+((i*13.37+drift.current.x*2)%30)-15+Math.sin(clock.current*.6+i)*(.45+wind.strength)+Math.sin(clock.current*.35)*wind.x*3;
+        const z=camera.position.z+((i*7.19+drift.current.z*2)%30)-15+Math.cos(clock.current*.45+i)*(.35+wind.strength*.5);
         const y=camera.position.y+12-((i*.791+clock.current*(1.1+(i%4)*.12))%22);
         const show=y>roofAt(roofs,x,z)+.04;
         if(show)flakes++;
@@ -90,6 +106,13 @@ export default function Weather() {
       }
       snowGeometry.attributes.position.needsUpdate=true;
     }
+    dust.current.visible=state.landscapeMotion&&weatherUniforms.weatherDust.value>.01&&!weatherState.sheltered;
+    dust.current.material.opacity=weatherUniforms.weatherDust.value*.28;
+    if(dust.current.visible){const p=dustGeometry.attributes.position.array;for(let i=0;i<240;i++){p[i*3]=camera.position.x+((i*7.31+drift.current.x*5)%36)-18;p[i*3+1]=camera.position.y+((i*3.17)%14)-5;p[i*3+2]=camera.position.z+((i*9.13+drift.current.z*5)%36)-18;if(p[i*3+1]<roofAt(roofs,p[i*3],p[i*3+2]))p[i*3+1]=-10000;}dustGeometry.attributes.position.needsUpdate=true;}
+    gl.domElement.dataset.weatherEvent=event.current.kind;
+    gl.domElement.dataset.eventStrength=event.current.strength.toFixed(3);
+    gl.domElement.dataset.wind=wind.strength.toFixed(3);
+    gl.domElement.dataset.lightning=weatherUniforms.weatherFlash.value.toFixed(3);
     gl.domElement.dataset.climate=climateFor(activeMap.mapType).name;
     gl.domElement.dataset.weather=current;
     gl.domElement.dataset.weatherMode=state.weatherMode;
@@ -113,5 +136,6 @@ export default function Weather() {
     <points ref={snow} geometry={snowGeometry} frustumCulled={false} name="snow-flurries">
       <pointsMaterial color="#e4eef5" size={.11} transparent opacity={0} depthWrite={false} onBeforeCompile={softenSnow} customProgramCacheKey={()=>'soft-snow-v1'} />
     </points>
+    <points ref={dust} geometry={dustGeometry} frustumCulled={false} name="sand-drift"><pointsMaterial color="#cdb27f" size={.16} transparent opacity={0} depthWrite={false} onBeforeCompile={softenSnow} customProgramCacheKey={()=>'soft-dust-v1'} /></points>
   </>;
 }

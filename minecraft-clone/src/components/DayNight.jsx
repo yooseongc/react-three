@@ -13,6 +13,7 @@ const vertexShader = `varying vec3 direction;
 void main(){ direction = position; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }`;
 const fragmentShader = `varying vec3 direction;
 uniform float natureTime; uniform float auroraStrength; uniform float rainbowStrength;
+uniform float weatherFlash;
 uniform vec3 zenith; uniform vec3 horizon; uniform vec3 sun; uniform float daylight;
 ${cloudShader}
 void main(){
@@ -25,6 +26,7 @@ void main(){
   vec3 cloudColor = mix(horizon * .7, mix(horizon,vec3(.92,.96,1.),.65),daylight) * (1.-weatherCloud*.35);
   color = mix(color,cloudColor,cloudCover(d));
   ${natureSkyShader}
+  color += vec3(.6,.7,.85)*weatherFlash*smoothstep(.0,.6,d.y);
   gl_FragColor=vec4(color,1.0);
   #include <tonemapping_fragment>
   #include <colorspace_fragment>
@@ -36,7 +38,7 @@ export default function DayNight() {
   useEffect(() => { worldClock.hour = selectedHour; }, [selectedHour]);
   const colors = useMemo(() => ({ night: new Color('#101d38'), day: new Color('#72b9e5'),
     nightFog: new Color('#34465f'), dayFog: new Color('#c4d8cb'), dusk: new Color('#eea16d'), noon: new Color('#fff4dc'),
-    moon: new Color('#bbcdf5'), white: new Color('#ffffff'), mistDay:new Color('#c9d4d4'), mistNight:new Color('#384452'), mistShade:new Color() }), []);
+    moon: new Color('#bbcdf5'), white: new Color('#ffffff'), mistDay:new Color('#c9d4d4'), mistNight:new Color('#384452'), sand:new Color('#b7a07c'), mistShade:new Color() }), []);
   const uniforms = useMemo(() => ({ zenith: { value: new Color() }, horizon: { value: new Color() },
     sun: { value: new Vector3() }, daylight: { value: 1 }, ...motionUniforms, ...weatherUniforms, ...natureUniforms }), []);
   const starPositions = useMemo(() => {
@@ -62,11 +64,15 @@ export default function DayNight() {
     const overcast=weatherUniforms.weatherCloud.value;
     const fog=weatherUniforms.weatherFog.value, snow=weatherUniforms.weatherSnow.value;
     liveUniforms.weatherCloud.value=overcast;
+    liveUniforms.weatherFlash.value=weatherUniforms.weatherFlash.value;
+    const dust=weatherUniforms.weatherDust.value;
     liveUniforms.zenith.value.copy(colors.night).lerp(colors.day, sample.daylight);
     liveUniforms.horizon.value.copy(colors.nightFog).lerp(colors.dayFog, sample.daylight).lerp(colors.dusk, sample.twilight * .7);
     colors.mistShade.copy(colors.mistNight).lerp(colors.mistDay,sample.daylight);
     liveUniforms.zenith.value.lerp(colors.mistShade,fog*.8+snow*.15);
     liveUniforms.horizon.value.lerp(colors.mistShade,Math.min(1,fog*.9+snow*.3));
+    liveUniforms.zenith.value.lerp(colors.sand,dust*.65);
+    liveUniforms.horizon.value.lerp(colors.sand,dust*.8);
     liveUniforms.sun.value.set(...sample.sun); liveUniforms.daylight.value = sample.daylight;
     sky.current.position.copy(camera.position); stars.current.position.copy(camera.position);
     stars.current.material.opacity = sample.stars * .85;
@@ -74,6 +80,10 @@ export default function DayNight() {
     const mist = Math.sin(motionUniforms.m8Time.value * .05) * motionUniforms.m8Strength.value;
     scene.fog.near = (45 + mist * 2 - overcast*15-snow*5)*(1-fog)+8*fog;
     scene.fog.far = (110 + mist * 3 - overcast*30-snow*8)*(1-fog)+32*fog;
+    const seaMist=weatherUniforms.weatherMist.value;
+    scene.fog.near*=1-seaMist*.4;scene.fog.far*=1-seaMist*.3;
+    scene.fog.near=scene.fog.near*(1-dust)+10*dust;
+    scene.fog.far=scene.fog.far*(1-dust)+38*dust;
     ambient.current.intensity = sample.ambient*(1-overcast*.2);
     ambient.current.color.copy(colors.moon).lerp(colors.white, sample.daylight);
     light.current.intensity = 2.65 * Math.min(1, Math.max(0, sample.elevation / .3))*(1-overcast*.85);

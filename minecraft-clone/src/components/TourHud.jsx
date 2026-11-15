@@ -1,3 +1,4 @@
+import { EVENT_LABELS } from '../game/weatherEvents';
 import { useEffect, useRef, useState } from 'react';
 import { useStore } from '../hooks/useStore';
 import { activeMap, MAP_TYPES,latestGenerator } from '../game/mapConfig';
@@ -13,6 +14,7 @@ import NowPlaying from './NowPlaying';
 
 export default function TourHud(){
  const state=useStore(),[name,setName]=useState(''),[fading,setFading]=useState(false),[started,setStarted]=useState(false),[error,setError]=useState(''),[clock,setClock]=useState(()=>formatTime(worldClock.hour));
+ const [event,setEvent]=useState('');
  const timer=useRef(),busy=useRef(false),elapsed=useRef(0),deck=useRef([]),nextRef=useRef();
  const next=()=>{
   if(busy.current)return;busy.current=true;setFading(true);setError('');
@@ -37,7 +39,7 @@ export default function TourHud(){
   const poll=setInterval(()=>{
    const now=performance.now(),s=useStore.getState();
    elapsed.current=advanceScene(elapsed.current,(now-previous)/1000,s.playing&&!busy.current,document.hidden);previous=now;
-   setName(tourView.name);setClock(formatTime(worldClock.hour));
+   setEvent(weatherState.event||'');setName(tourView.name);setClock(formatTime(worldClock.hour));
    if(elapsed.current>=(s.tourScene?.duration||45))nextRef.current();
   },100);
   const pause=()=>useStore.getState().setPlaying(false);
@@ -49,7 +51,7 @@ export default function TourHud(){
  const resume=()=>{unlockAudio();setStarted(true);state.setPlaying(true);};
  return <div className="tour-hud" data-scene={state.tourRevision} data-weather={state.tourScene?.weather} data-hour={state.tourScene?.hour}>
   <div className={'tour-fade'+(fading?' active':'')} aria-hidden="true" />
-  <div className="tour-title"><span>VOXEL GARDEN · 풍경 감상</span><h1>{MAP_TYPES[activeMap.mapType]}</h1><small>{clock} · {WEATHER_LABELS[state.tourScene?.weather]} · 풍경 자동 전환</small></div>
+  <div className="tour-title"><span>VOXEL GARDEN · 풍경 감상</span><h1>{MAP_TYPES[activeMap.mapType]}</h1><small>{clock} · {WEATHER_LABELS[state.tourScene?.weather]}{event?' · '+EVENT_LABELS[event]:''} · 풍경 자동 전환</small></div>
   {state.playing && <div key={state.tourRevision+name} className="tour-place">{name}</div>}
   {!state.playing && <div className="tour-pause"><p>{started?'잠시 머무는 풍경':'바람이 이끄는 대로.'}</p><button className="primary" disabled={!state.ready||fading} onClick={resume}>{!state.ready?'풍경 준비 중…':started?'감상 계속':'감상 시작'}</button>{!started&&<small>맵·시간·날씨가 바뀌는 작은 여행</small>}{error&&<small role="alert">{error}</small>}</div>}
   <div className="tour-toolbar" role="group" aria-label="풍경 감상 조작">

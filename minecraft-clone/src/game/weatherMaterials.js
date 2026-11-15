@@ -4,7 +4,7 @@ import { MAP_LIMIT } from './mapConfig';
 const width=MAP_LIMIT*2+1;
 const roofTexture = new DataTexture(new Float32Array(width*width).fill(.5),width,width,RedFormat,FloatType);
 roofTexture.needsUpdate = true;
-export const weatherUniforms = { weatherCloud: {value:0}, weatherWet: {value:0}, weatherFog: {value:0}, weatherSnow: {value:0}, weatherRoof: {value:roofTexture} };
+export const weatherUniforms = { weatherMist: {value:0}, weatherWind: {value:0}, weatherRain: {value:0}, weatherDust: {value:0}, weatherFlash: {value:0}, weatherCloud: {value:0}, weatherWet: {value:0}, weatherFog: {value:0}, weatherSnow: {value:0}, weatherRoof: {value:roofTexture} };
 export function wetSurface(material) {
   const previous = material.onBeforeCompile.bind(material);
   const key = material.customProgramCacheKey();

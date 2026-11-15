@@ -1,3 +1,4 @@
+import { MAP_LIMIT } from './mapConfig';
 import { ShaderChunk } from 'three';
 import { weatherUniforms } from './weatherMaterials';
 
@@ -7,13 +8,13 @@ export const MAX_WAVE_HEIGHT = .07;
 export function advanceMotion(time, delta, running) {
   return time + (running ? Math.min(.1, Math.max(0, delta)) : 0);
 }
-const declarations = 'uniform float m8Time; uniform float m8Strength; varying vec3 m8Position;\n';
+const declarations = 'uniform float weatherWind; uniform float weatherRain; uniform float m8Time; uniform float m8Strength; varying vec3 m8Position;\n';
 export function animateSurface(material, kind) {
   material.customProgramCacheKey = () => `garden-motion-v1-${kind}`;
   material.onBeforeCompile = shader => {
-    Object.assign(shader.uniforms, motionUniforms);
+    Object.assign(shader.uniforms, motionUniforms, weatherUniforms);
     shader.vertexShader = declarations + shader.vertexShader;
-    shader.fragmentShader = declarations + shader.fragmentShader;
+    shader.fragmentShader = (kind==='water'?'uniform sampler2D weatherRoof;\n':'') + declarations + shader.fragmentShader;
     let displacement = '';
     if (kind === 'water') {
       displacement = `transformed.y += m8Strength * (.045*sin(position.x*.8+position.z*.4+m8Time*1.3) + .025*sin(position.x*-.5+position.z*1.1-m8Time*.9));`;
@@ -25,19 +26,29 @@ export function animateSurface(material, kind) {
       shader.fragmentShader = shader.fragmentShader.replace('#include <color_fragment>', `
         #include <color_fragment>
         float ripple = sin(m8Position.x*4.0+m8Position.z*2.3+m8Time*1.8) * sin(m8Position.z*3.5-m8Time*1.2);
-        diffuseColor.rgb *= 1.0 + m8Strength * (.09*ripple + .12*pow(max(0.,ripple),6.));`);
+        diffuseColor.rgb *= 1.0 + m8Strength * (.09*ripple + .12*pow(max(0.,ripple),6.));
+        vec2 cell=floor(m8Position.xz*1.6);
+        float seed=fract(sin(dot(cell,vec2(127.1,311.7)))*43758.5453);
+        vec2 center=vec2(.2+.6*seed,.2+.6*fract(seed*17.));
+        float age=fract(m8Time*1.1+seed);
+        float radius=length(fract(m8Position.xz*1.6)-center);
+        float ring=(1.-smoothstep(.015,.045,abs(radius-age*.48)))*(1.-age);
+        vec2 rainRoofUv=(floor(m8Position.xz+.5)+${MAP_LIMIT+.5})/${MAP_LIMIT*2+1}.;
+        float rainRoof=texture2D(weatherRoof,clamp(rainRoofUv,0.,1.)).r;
+        float exposed=step(rainRoof,m8Position.y+.1);
+        diffuseColor.rgb += vec3(.22,.28,.29)*ring*weatherRain*m8Strength*exposed;`);
     } else if (kind === 'grass') {
       displacement = `float tip = pow(clamp((position.y+.2)/.4,0.,1.),2.);
         float phase = instanceMatrix[3].x*.45+instanceMatrix[3].z*.3;
-        float sway = m8Strength * tip * (.08*sin(m8Time*1.7+phase)+.025*sin(m8Time*3.1+phase*.7));
+        float sway = m8Strength * (1.+weatherWind) * tip * (.08*sin(m8Time*1.7+phase)+.025*sin(m8Time*3.1+phase*.7));
         transformed.x += sway; transformed.z += sway*.45;`;
     } else if (kind === 'leaves') {
       // Keep editable voxel boundaries and their shadows exact; rustle the surface only.
-      const map = ShaderChunk.map_fragment.replace('vMapUv );', 'vMapUv + m8Strength * .012 * vec2(sin(m8Time*1.8+m8Position.x*.7+m8Position.z*.4), cos(m8Time*1.2+m8Position.y)) );');
+      const map = ShaderChunk.map_fragment.replace('vMapUv );', 'vMapUv + m8Strength * (1.+weatherWind) * .012 * vec2(sin(m8Time*1.8+m8Position.x*.7+m8Position.z*.4), cos(m8Time*1.2+m8Position.y)) );');
       shader.fragmentShader = shader.fragmentShader.replace('#include <map_fragment>', map);
       shader.fragmentShader = shader.fragmentShader.replace('#include <color_fragment>', `
         #include <color_fragment>
-        diffuseColor.rgb *= 1.0 + m8Strength*.055*sin(m8Position.x*.7+m8Position.z*.4+m8Time*1.8);`);
+        diffuseColor.rgb *= 1.0 + m8Strength*(1.+weatherWind)*.055*sin(m8Position.x*.7+m8Position.z*.4+m8Time*1.8);`);
     }
     shader.vertexShader = shader.vertexShader.replace('#include <begin_vertex>', `
       #include <begin_vertex>
@@ -64,7 +75,7 @@ float cloudCover(vec3 direction){
   return mix(clearCloud,.8+n*.2,weatherCloud);
 }`;
 export function maskCloudStars(shader) {
-  Object.assign(shader.uniforms, motionUniforms);
+  Object.assign(shader.uniforms, motionUniforms, weatherUniforms);
   Object.assign(shader.uniforms, weatherUniforms);
   shader.vertexShader = 'varying vec3 cloudDirection;\n' + shader.vertexShader;
   shader.vertexShader = shader.vertexShader.replace('#include <begin_vertex>', '#include <begin_vertex>\ncloudDirection=position;');
