@@ -1,5 +1,5 @@
 // Full voxel structures: every wall, roof, arch and furnishing remains editable.
-function helpers(c){
+export function helpers(c){
  const {put,box,pad,site}=c;
  const approach=(x,z,y)=>{for(let step=0;step<7;step++){const zz=z+step,ground=c.height(x,zz),level=Math.max(ground,y-step);for(let dx=-1;dx<=1;dx++){put(x+dx,level,zz,'whiteStone');c.heights.set((x+dx)+','+zz,level);for(let dy=1;dy<=3;dy++)c.blocks.delete((x+dx)+','+(level+dy)+','+zz);}}};
  const roof=(x,z,y,rx,rz,t='blackTile',curve=false)=>{for(let dx=-rx;dx<=rx;dx++)for(let dz=-rz;dz<=rz;dz++){const rise=Math.floor((rx-Math.abs(dx))/2)+(curve&&Math.abs(dx)===rx?1:0);put(x+dx,y+rise,z+dz,t);}};

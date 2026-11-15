@@ -1,12 +1,12 @@
 import { CatmullRomCurve3, Vector3 } from 'three';
-import { MAP_TYPES, terrainQuery } from './mapConfig';
+import { MAP_TYPES, terrainQuery,latestGenerator } from './mapConfig';
 import { randomSeed } from './mapCatalog';
 import { safeWorldQuery } from './transfer';
 import { hashSeed } from './terrain';
 
 export function newTourQuery(returnQuery='?', random=Math.random) {
  const types=Object.keys(MAP_TYPES),mapType=types[Math.floor(random()*types.length)];
- return terrainQuery(randomSeed(),{mapType,size:100,generator:3})+'&tour=1&return='+encodeURIComponent(safeWorldQuery(returnQuery)||'?');
+ return terrainQuery(randomSeed(),{mapType,size:100,generator:latestGenerator(mapType)})+'&tour=1&return='+encodeURIComponent(safeWorldQuery(returnQuery)||'?');
 }
 export function tourReturnQuery(search) {return safeWorldQuery(new URLSearchParams(search).get('return'))||'?';}
 export const tourView={name:'',shot:0,seek:0};

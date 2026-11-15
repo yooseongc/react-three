@@ -1,3 +1,13 @@
+import { generateCanalCity } from './canalCity.js';
+import { generateAutumnValley } from './autumnValley.js';
+import { generateCherryShrine } from './cherryShrine.js';
+import { generateMoonGarden } from './moonGarden.js';
+import { generatePineRetreat } from './pineRetreat.js';
+import { polishNature } from './naturePolish.js';
+import { generateSkyGarden } from './skyGarden.js';
+import { generateCoralIslands } from './coralIslands.js';
+import { generateDesertOasis } from './desertOasis.js';
+import { generateBambooOnsen } from './bambooOnsen.js';
 import { addLivingWorld } from './livingWorld.js';
 import { EXPANSION_IDS } from './expansionCatalog.js';
 import { generateThemedTerrain } from './themedTerrain.js';
@@ -19,6 +29,19 @@ export function randomAt(seed, x, z) {
 }
 export function generateTerrain(seed = 'willow', options = {}) {
   const config=mapConfig(options),limit=mapLimit(config),kind=config.mapType;
+  if(config.generator===4){
+    if(kind==='canal')return addLivingWorld(generateCanalCity(seed,config,hashSeed(seed)));
+    if(kind==='autumn')return addLivingWorld(generateAutumnValley(seed,config,hashSeed(seed)));
+    if(kind==='shrine')return addLivingWorld(generateCherryShrine(seed,config,hashSeed(seed)));
+    if(kind==='moon')return addLivingWorld(generateMoonGarden(seed,config,hashSeed(seed)));
+    if(kind==='pine')return addLivingWorld(generatePineRetreat(seed,config,hashSeed(seed)));
+    if(['forest','meadow','islands','snow'].includes(kind))return polishNature(generateTerrain(seed,{...config,generator:3}),hashSeed(seed));
+    if(kind==='sky')return addLivingWorld(generateSkyGarden(seed,config,hashSeed(seed)));
+    if(kind==='coral')return addLivingWorld(generateCoralIslands(seed,config,hashSeed(seed)));
+    if(kind==='oasis')return addLivingWorld(generateDesertOasis(seed,config,hashSeed(seed)));
+    if(kind==='onsen')return addLivingWorld(generateBambooOnsen(seed,config,hashSeed(seed)));
+    return {...generateTerrain(seed,{...config,generator:3}),generator:4};
+  }
   if(config.generator===3)return addLivingWorld({...generateTerrain(seed,{...config,generator:2}),generator:3});
   if(EXPANSION_IDS.includes(kind))return generateThemedTerrain(seed,config,hashSeed(seed));
   const salt = hashSeed(seed), cubes = [], heights = new Map(), water = [], flowers = [], occupied = new Set();
@@ -82,7 +105,7 @@ export function serializeTerrain(seed, base, current, options={}) {
 }
 export function restoreTerrain(raw, seed, cubes, validPosition, types, options={}) {
   const data=JSON.parse(raw);
-  if(data.version!==2||![1,2,3].includes(data.generator)||data.seed!==seed||!Array.isArray(data.edits))throw Error('Unsupported landscape save');
+  if(data.version!==2||![1,2,3,4].includes(data.generator)||data.seed!==seed||!Array.isArray(data.edits))throw Error('Unsupported landscape save');
   const config=mapConfig(options),saved=mapConfig(data);
   if((data.mapType!==undefined && data.mapType!==saved.mapType)||(data.size!==undefined && data.size!==saved.size)||config.mapType!==saved.mapType||config.size!==saved.size||config.generator!==saved.generator)throw Error('Landscape configuration mismatch');
   const blocks=new Map(cubes.map(c=>[c.key,c]));

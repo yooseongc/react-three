@@ -5,12 +5,28 @@ import { cleanSettings } from './settings';
 
 let habitat,blocks;
 beforeAll(()=>{const terrain=generateTerrain('willow');habitat=wildlifeHabitat(terrain);blocks=new Map(terrain.cubes.map(c=>[c.key,c]));});
+
+test.each(['willow','amber','maple'])('%s autumn places squirrels near trees and deer in clearings',seed=>{
+ const t=generateTerrain(seed,{mapType:'autumn',generator:4}),h=wildlifeHabitat(t),b=new Map(t.cubes.map(c=>[c.key,c])),animals=createWildlife(h,b);
+ expect(animals.length).toBeLessThanOrEqual(WILDLIFE_LIMIT);
+ expect(animals.filter(a=>a.type==='squirrel'&&a.active)).toHaveLength(5);
+ expect(animals.some(a=>a.type==='sheep')).toBe(false);
+ for(const a of animals.filter(a=>a.active)){
+  expect(animalSurface(a.type,a.x,a.z,h,b)).toBe(a.y);
+  if(['squirrel','fox'].includes(a.type))expect(t.valley.trees.some(tree=>Math.hypot(a.x-tree.x,a.z-tree.z)<=5)).toBe(true);
+  if(a.type==='deer')expect(t.valley.trees.every(tree=>Math.hypot(a.x-tree.x,a.z-tree.z)>5)).toBe(true);
+ }
+ for(let i=0;i<300;i++)stepWildlife(animals,h,b,{x:0,y:20,z:10},1/60);
+ for(const a of animals.filter(a=>a.active))expect(animalSurface(a.type,a.x,a.z,h,b)).toBe(a.y);
+});
 test('seeded population is bounded, repeatable and inhabits safe land/water',()=>{
   const animals=createWildlife(habitat,blocks);
   expect(animals).toEqual(createWildlife(habitat,blocks));expect(animals).toHaveLength(wildlifePopulation(habitat.mapType).length);expect(animals.length).toBeLessThanOrEqual(WILDLIFE_LIMIT);
   expect(animals.every(a=>a.active)).toBe(true);
   expect(animals.filter(a=>a.type==='fox')).toHaveLength(2);
-  expect(animals.filter(a=>a.type==='sheep')).toHaveLength(2);
+  expect(animals.filter(a=>a.type==='sheep')).toHaveLength(0);
+  expect(animals.filter(a=>a.type==='squirrel')).toHaveLength(5);
+  expect(animals.filter(a=>a.type==='butterfly')).toHaveLength(4);
   expect(animals.filter(a=>a.type==='duck' && a.x<0).length).toBeGreaterThanOrEqual(2);
   for(const a of animals)expect(animalSurface(a.type,a.x,a.z,habitat,blocks)).toBe(a.y);
   expect(createWildlife(null,blocks)).toEqual([]);

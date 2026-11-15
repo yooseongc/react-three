@@ -1,5 +1,5 @@
 import { EXPANSION_MAPS } from './expansionCatalog';
-import { terrainQuery } from './mapConfig';
+import { terrainQuery,latestGenerator } from './mapConfig';
 export function randomSeed(){return 'garden-'+Array.from(crypto.getRandomValues(new Uint32Array(2)),n=>n.toString(36).padStart(7,'0')).join('');}
 export const MAP_CATALOG=[
   {id:'forest',name:'물빛 숲',tag:'숲과 강',description:'숲과 강을 지나, 등불 켜진 부두와 돛배가 있는 바다.'},
@@ -14,5 +14,5 @@ export function mapChoiceQuery(id,seed,size){
   const choice=MAP_CATALOG.find(c=>c.id===id);if(!choice)throw Error('맵을 선택하세요.');
   if(choice.query)return choice.query;
   const value=Array.from(seed.trim()).slice(0,64).join('');if(!value)throw Error('시드를 입력하세요.');
-  return terrainQuery(value,{mapType:id,size,generator:3});
+  return terrainQuery(value,{mapType:id,size,generator:latestGenerator(id)});
 }

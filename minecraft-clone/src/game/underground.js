@@ -4,7 +4,7 @@ export const undergroundState={inside:false,name:''};
 // The entry is a descending walk with a lit, reversible route to the surface.
 export function addUnderground(terrain){
  if(!['autumn','onsen','canal'].includes(terrain.mapType))return terrain;
- const city=terrain.mapType==='canal',x=city?0:-29,z=city?-41:30,entryZ=city?-29:15,dir=city?-1:1;
+ const city=terrain.mapType==='canal',x=city?(terrain.undergroundPlan?.x??0):-29,z=city?(terrain.undergroundPlan?.z??-41):30,entryZ=city?(terrain.undergroundPlan?.entryZ??-29):15,dir=city?-1:1;
  const blocks=new Map(terrain.cubes.map(c=>[c.key,c])),heights=new Map(terrain.heights),water=[...terrain.water],crystals=[],steam=[...(terrain.steam||[])];
  const key=(x,y,z)=>[x,y,z].join(',');
  const put=(x,y,z,texture)=>blocks.set(key(x,y,z),{key:key(x,y,z),pos:[x,y,z],texture});
@@ -46,6 +46,13 @@ export function addUnderground(terrain){
  if(terrain.mapType==='autumn')for(const [dx,dz] of [[-4,-2],[4,1],[-2,4]]){put(x+dx,4,z+dz,'glass');crystals.push({pos:[x+dx,5,z+dz],anchor:key(x+dx,4,z+dz),texture:'glass'});}
  if(!city)for(const [dx,dz] of [[-5,-1],[5,2],[-3,3]]){put(x+dx,ceiling,z+dz,'stone');put(x+dx,ceiling-1,z+dz,'stone');}
  if(terrain.mapType==='onsen')steam.push([x,3,z],[x+1,3,z+1]);
+ if(city&&terrain.generator>=4){
+  // The new city's waterworks read as a planted terrace, not a bare brick bunker.
+  for(const dx of [-6,6])for(const dz of [-4,0,4]){put(x+dx,roof+1,z+dz,'whiteStone');if(dz)put(x+dx,roof+2,z+dz,'lantern');}
+  for(const dx of [-3,3])for(let dz=-2;dz<=2;dz++){put(x+dx,roof+1,z+dz,'darkWood');put(x+dx,roof+2,z+dz,'leaves');}
+  for(const dx of [-2,2])for(let y=4;y<=7;y++)put(x+dx,y,z+7,'limestone');
+  for(let dx=-2;dx<=2;dx++)put(x+dx,8,z+7,'limestone');
+ }
  const name=city?'물빛 아래 지하 수로':terrain.mapType==='onsen'?'바위 품의 지하 온천':'단풍 아래 수정 동굴';
  const cave={x,z,entry:[x,start+.5,entryZ],minX:x-7,maxX:x+7,minZ:Math.min(z-5,entryZ),maxZ:Math.max(z+5,entryZ),floor:3,ceiling,name};
  // Lantern-marked approach on the surface, with one-block steps where needed.

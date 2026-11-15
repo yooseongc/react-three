@@ -83,7 +83,7 @@ export function spawnPosition(cubes) {
 
 // Fixed-size substeps keep collision stable even when frames are slow.
 export function stepPlayer(player, input, yaw, delta, cubes) {
-  const p = { ...player };
+  const p = { ...player, stepRise: 0 };
   const forward = input.moveForward ?? (Number(!!input.forward) - Number(!!input.backward));
   const side = input.moveRight ?? (Number(!!input.right) - Number(!!input.left));
   const vertical = input.flying ? Number(!!input.ascend) - Number(!!input.descend) : 0;
@@ -105,7 +105,7 @@ export function stepPlayer(player, input, yaw, delta, cubes) {
           const rise=pos[1]+.5-p.y;
           if(input.autoStep&&!input.flying&&p.grounded&&rise>0&&rise<=1.01){
             const raised={...p,y:pos[1]+.5};
-            if(!nearbyBlocks(cubes,raised).some(c=>overlapsPlayer(c.pos,raised,0))){p.y=raised.y;p.vy=0;continue;}
+            if(!nearbyBlocks(cubes,raised).some(c=>overlapsPlayer(c.pos,raised,0))){p.stepRise+=rise;p.y=raised.y;p.vy=0;continue;}
           }
           p[axis] = pos[axis === 'x' ? 0 : 2] - Math.sign(velocity) * (0.5 + PLAYER_RADIUS);
         }

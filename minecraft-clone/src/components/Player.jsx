@@ -15,9 +15,11 @@ import { renderMetrics } from '../game/metrics';
 import { blockFeedback } from '../game/feedback';
 import { activeMap } from '../game/mapConfig';
 import { landscape, generationMs } from '../game/landscape';
+import { stepCameraOffset } from '../game/stepCamera';
 
 export default function Player() {
   const { camera, gl } = useThree();
+  useEffect(()=>{if(landscape?.spawnHeading!==undefined)camera.rotation.set(0,landscape.spawnHeading,0);},[camera]);
   const input = useKeyboardControls();
   const player = useRef(spawnPosition(useStore.getState().cubes));
   const outline = useRef();
@@ -33,6 +35,7 @@ export default function Player() {
   const touchRotation = useMemo(() => new Euler(0,0,0,'YXZ'), []);
   const heading = useRef(0);
   const wasFlying = useRef(false);
+  const eyeStepOffset = useRef(0);
   const edges = useMemo(() => {
     const box = new BoxGeometry(1.008, 1.008, 1.008);
     const geometry = new EdgesGeometry(box); box.dispose(); return geometry;
@@ -99,13 +102,14 @@ export default function Player() {
     if (state.playing) {
       if (wasFlying.current !== state.flying) player.current.vy = 0;
       wasFlying.current = state.flying;
-      player.current = stepPlayer(player.current, { ...input.current, ...(state.touchMode?touchInput:{}), flying: state.flying, autoStep:landscape?.caves?.some(c=>Math.abs(player.current.x-c.x)<2&&player.current.z>=c.minZ-2&&player.current.z<=c.maxZ+2) }, heading.current, delta, state.world);
+      player.current = stepPlayer(player.current, { ...input.current, ...(state.touchMode?touchInput:{}), flying: state.flying, autoStep:landscape?.walkwaySteps?.has(Math.round(player.current.x)+","+Math.round(player.current.z))||landscape?.caves?.some(c=>Math.abs(player.current.x-c.x)<2&&player.current.z>=c.minZ-2&&player.current.z<=c.maxZ+2) }, heading.current, delta, state.world);
       input.current.jump = false;
       touchInput.jump = false;
     }
     const p = player.current;
     Object.assign(playerView, { x: p.x, y: p.y, z: p.z, heading: heading.current });
-    camera.position.set(p.x, p.y + 1.62, p.z);
+    if(state.playing)eyeStepOffset.current=stepCameraOffset(eyeStepOffset.current,p.stepRise,delta,state.flying||p.vy>0);
+    camera.position.set(p.x, p.y + 1.62 + eyeStepOffset.current, p.z);
     camera.updateMatrixWorld();
     const hit = state.playing && state.buildMode ? target() : null;
     const block = hit?.block;
@@ -137,6 +141,7 @@ export default function Player() {
     }
     // Read-only telemetry supports repeatable browser QA without changing gameplay.
     gl.domElement.dataset.position = [p.x, p.y, p.z].map(n => n.toFixed(3)).join(',');
+    gl.domElement.dataset.eyeHeight = camera.position.y.toFixed(4);
     gl.domElement.dataset.grounded = String(p.grounded);
     gl.domElement.dataset.flying = String(state.flying);
     gl.domElement.dataset.heading = String(heading.current);

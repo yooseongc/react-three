@@ -7,7 +7,7 @@ test('all map choices use integrated scenery or their existing building worlds',
   expect(MAP_CATALOG).toHaveLength(Object.keys(MAP_TYPES).length+2);
   for(const id of Object.keys(MAP_TYPES)){
     const q=mapChoiceQuery(id,' my garden ',150);
-    expect(new URLSearchParams(q).get('gen')).toBe('3');
+    expect(new URLSearchParams(q).get('gen')).toBe(['canal','autumn','shrine','moon','pine','onsen','oasis','coral','sky','forest','meadow','islands','snow'].includes(id)?'4':'3');
     expect(new URLSearchParams(q).get('world')).toBe('my garden');
     expect(safeWorldQuery(q)).toBe(q);
   }

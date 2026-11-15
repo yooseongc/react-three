@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useStore } from '../hooks/useStore';
-import { activeMap, MAP_TYPES } from '../game/mapConfig';
+import { activeMap, MAP_TYPES,latestGenerator } from '../game/mapConfig';
 import { tourReturnQuery, tourView } from '../game/tour';
 import { chooseTourScene, advanceScene } from '../game/tourScenes';
 import { randomSeed } from '../game/mapCatalog';
@@ -19,7 +19,7 @@ export default function TourHud(){
   timer.current=setTimeout(()=>{
    try {
     const current=useStore.getState(),choice=chooseTourScene(current.tourScene,deck.current),seed=randomSeed();deck.current=choice.remaining;
-    const terrain=replaceTourLandscape(seed,{mapType:choice.mapType,size:activeMap.size,generator:3});
+    const terrain=replaceTourLandscape(seed,{mapType:choice.mapType,size:activeMap.size,generator:latestGenerator(choice.mapType)});
     const world=createVoxelWorld(terrain.cubes);
     // Set the shot's atmosphere under the fade; music chooses its matching track.
     Object.assign(weatherState,{current:choice.weather,cloud:{clear:0,cloudy:.75,rain:1,fog:.45,snow:.85}[choice.weather],rain:choice.weather==='rain'?1:0,wet:choice.weather==='rain'?1:0,fog:choice.weather==='fog'?1:0,snow:choice.weather==='snow'?1:0});
