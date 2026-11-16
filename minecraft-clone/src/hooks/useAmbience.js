@@ -1,3 +1,4 @@
+import { isTour } from '../game/tourSession';
 import { undergroundState } from '../game/underground';
 import { useEffect } from 'react';
 import { useStore } from './useStore';
@@ -10,7 +11,7 @@ export function useAmbience() {
     const silence=()=>setAmbience({},0,false);
     const hide=()=>{if(document.hidden)silence();};
     const unsubscribe=useStore.subscribe(state=>{if(!state.playing || !state.ambienceEnabled)silence();});
-    window.addEventListener('blur',silence);
+    if(!isTour)window.addEventListener('blur',silence);
     document.addEventListener('visibilitychange',hide);
     const timer=setInterval(()=>{
       const state=useStore.getState();
@@ -19,7 +20,7 @@ export function useAmbience() {
       setAmbience({hour:worldClock.hour,weather:weatherState.current,sheltered:weatherState.sheltered,underground:undergroundState.inside},state.ambienceVolume,audible);
     },100);
     return ()=>{
-      clearInterval(timer);unsubscribe();window.removeEventListener('blur',silence);
+      clearInterval(timer);unsubscribe();if(!isTour)window.removeEventListener('blur',silence);
       document.removeEventListener('visibilitychange',hide);silence();
     };
   },[]);

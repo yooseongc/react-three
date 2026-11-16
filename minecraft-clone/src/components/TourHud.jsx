@@ -45,8 +45,9 @@ export default function TourHud(){
   const pause=()=>useStore.getState().setPlaying(false);
   const hidden=()=>{if(document.hidden)pause();};
   const key=e=>{if(e.code==='Escape')pause();};
-  window.addEventListener('blur',pause);document.addEventListener('visibilitychange',hidden);document.addEventListener('keydown',key);
-  return()=>{clearInterval(poll);clearTimeout(timer.current);window.removeEventListener('blur',pause);document.removeEventListener('visibilitychange',hidden);document.removeEventListener('keydown',key);};
+  // A visible tour keeps playing while another window has keyboard focus.
+  document.addEventListener('visibilitychange',hidden);document.addEventListener('keydown',key);
+  return()=>{clearInterval(poll);clearTimeout(timer.current);document.removeEventListener('visibilitychange',hidden);document.removeEventListener('keydown',key);};
  },[]);
  const resume=()=>{unlockAudio();setStarted(true);state.setPlaying(true);};
  return <div className="tour-hud" data-scene={state.tourRevision} data-weather={state.tourScene?.weather} data-hour={state.tourScene?.hour}>
