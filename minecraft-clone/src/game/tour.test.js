@@ -1,3 +1,5 @@
+import { Quaternion, Vector3 } from 'three';
+import { easeTourRotation, TOUR_TURN_RATE } from './tour';
 import { createTourRoute, tourPose, nextTourStop, newTourQuery, tourReturnQuery } from './tour';
 import { generateTerrain } from './terrain';
 import { isTourQuery } from './tourSession';
@@ -21,4 +23,20 @@ test('temporary tour queries preserve only valid local return worlds',()=>{
  expect(tourReturnQuery('?return=https://example.com')).toBe('?');
  expect(isTourQuery('?world=x&tour=1&slot=original')).toBe(false);
  expect(isTourQuery('?demo=build')).toBe(false);
+});
+
+test('large gaze changes stay within the turn limit and settle without overshooting',()=>{
+ const current=new Quaternion(),target=new Quaternion().setFromAxisAngle(new Vector3(0,1,0),Math.PI);
+ for(let i=0;i<1200;i++){
+  const previous=current.clone(),remaining=current.angleTo(target);
+  easeTourRotation(current,target,1/60);
+  expect(previous.angleTo(current)).toBeLessThanOrEqual(TOUR_TURN_RATE/60+1e-8);
+  expect(current.angleTo(target)).toBeLessThanOrEqual(remaining+1e-8);
+ }
+ expect(current.angleTo(target)).toBeLessThan(.001);
+});
+test('camera easing ignores zero delta and bounds a resumed long frame',()=>{
+ const q=new Quaternion(),target=new Quaternion().setFromAxisAngle(new Vector3(0,1,0),2);
+ expect(easeTourRotation(q.clone(),target,0).angleTo(q)).toBe(0);
+ expect(easeTourRotation(q.clone(),target,10).angleTo(q)).toBeLessThanOrEqual(TOUR_TURN_RATE*.05+1e-8);
 });

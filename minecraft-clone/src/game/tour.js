@@ -46,7 +46,7 @@ export function createTourRoute(terrain) {
 export function tourPose(route,cursor) {
  const n=route.count,t=((cursor%n)+n)%n,i=Math.floor(t),fraction=t-i;
  const position=route.samples[i].clone().lerp(route.samples[(i+1)%n],fraction);
- const ahead=route.samples[(i+18)%n].clone();ahead.y-=3;
+ const ahead=route.samples[(i+18)%n].clone().lerp(route.samples[(i+19)%n],fraction);ahead.y-=3;
  const shot=route.shots.reduce((best,s)=>Math.abs(s.index-t)<Math.abs(best.index-t)?s:best,route.shots[0]);
  const distance=Math.hypot(position.x-shot.stop.x,position.z-shot.stop.z);
  // Ease the gaze toward nearby landmarks instead of snapping when labels change.
@@ -55,3 +55,11 @@ export function tourPose(route,cursor) {
  return {position,target:ahead,name:shot.stop.name};
 }
 export function nextTourStop(route,cursor){return (route.shots.find(s=>s.index>cursor+4)||route.shots[0]).index;}
+
+// Bound large landmark/sky gaze changes while easing small corrections to rest.
+export const TOUR_TURN_RATE=Math.PI/6; // 30 degrees per second
+export function easeTourRotation(current,target,delta){
+ const dt=Math.min(.05,Math.max(0,delta)),angle=current.angleTo(target);
+ if(angle<1e-7||dt===0)return current;
+ return current.slerp(target,Math.min(1-Math.exp(-dt*1.2),TOUR_TURN_RATE*dt/angle));
+}
